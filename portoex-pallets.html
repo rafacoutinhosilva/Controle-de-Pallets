@@ -558,9 +558,25 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
 
 <div class="toast-wrap" id="toastWrap"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAPRlkYLaloFVcflsebFbxSIpcbwWoUdDg",
+  authDomain: "portoex-pallets.firebaseapp.com",
+  projectId: "portoex-pallets",
+  storageBucket: "portoex-pallets.firebasestorage.app",
+  messagingSenderId: "574386095042",
+  appId: "1:574386095042:web:e038475ea69e2dc8b20c5b",
+  measurementId: "G-NE9MG68K5T"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+const operacoesCol = collection(db, 'operacoes');
+
 (function(){
-  let db = null, downloads = null;
   let records = [];
   let editingId = null;
   let devolucaoTargetId = null;
@@ -1042,16 +1058,15 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
     if (!data.cliente || !data.motorista) { toast('Preencha ao menos motorista e cliente.'); return; }
     if (data.qtdDeixados === null || isNaN(data.qtdDeixados) || data.qtdDeixados < 0) { toast('Informe uma quantidade de pallets válida (0 ou mais).'); return; }
     if (!data.data) { toast('Informe a data da operação.'); return; }
-    if (!db) { toast('Sem conexão com o banco de dados. Tente novamente.'); return; }
 
     try {
       if (editingId) {
-        await db.collection('operacoes').doc(editingId).update(data);
+        await updateDoc(doc(db, 'operacoes', editingId), data);
       } else {
         data.devolucoes = [];
         data.dataDevolucao = null;
         data.createdAt = Date.now();
-        await db.collection('operacoes').add(data);
+        await addDoc(operacoesCol, data);
       }
       closeDrawer();
       toast('Registro salvo com sucesso.');
@@ -1062,9 +1077,8 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
 
   async function removeRecord(id){
     if (!confirm('Excluir este registro de pallets? Essa ação não pode ser desfeita.')) return;
-    if (!db) return;
     try {
-      await db.collection('operacoes').doc(id).delete();
+      await deleteDoc(doc(db, 'operacoes', id));
       toast('Registro excluído.');
     } catch (e) {
       toast('Não foi possível excluir.');
@@ -1102,13 +1116,12 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
     if (!qtd || qtd <= 0) { toast('Informe uma quantidade válida para a devolução.'); return; }
     if (qtd > saldo) { toast(`A quantidade devolvida não pode ser maior que o saldo pendente (${saldo}).`); return; }
     if (!dataDev) { toast('Informe a data da devolução.'); return; }
-    if (!db) { toast('Sem conexão com o banco de dados.'); return; }
 
     const novaDevolucao = { qtd, data: dataDev, obs: $('devObs').value.trim(), at: Date.now() };
     const devolucoes = [...(r.devolucoes||[]), novaDevolucao];
 
     try {
-      await db.collection('operacoes').doc(r.id).update({
+      await updateDoc(doc(db, 'operacoes', r.id), {
         devolucoes,
         dataDevolucao: dataDev,
         updatedAt: Date.now()
@@ -1136,21 +1149,27 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
     };
     const csv = '\uFEFF' + [headers, ...rows].map(row => row.map(csvEscape).join(';')).join('\r\n');
 
-    if (!downloads) { toast('Exportação indisponível nesta visualização.'); return; }
     try {
-      await downloads.save({ filename: `controle-pallets-${todayISO()}.csv`, data: csv });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `controle-pallets-${todayISO()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
       toast('Exportação concluída.');
     } catch (e) {
-      if (e && e.code === 'declined') return;
       toast('Não foi possível exportar agora.');
     }
   }
 
   /* ---------- db subscription ---------- */
   function subscribe(){
-    unsub = db.collection('operacoes').onSnapshot(
+    unsub = onSnapshot(operacoesCol,
       (snap) => {
-        records = snap.docs.map(d => ({ id: d.id, ...d.data }));
+        records = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         $('connStatus').classList.add('live');
         $('connStatus').innerHTML = '<span class="dot"></span><span>sincronizado</span>';
         renderAll();
@@ -1204,14 +1223,6 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
     $('btnNextPage').onclick = () => { page++; renderTable(); };
 
     syncFilterUI();
-
-    try { db = await window.claude.use('db'); } catch(e) { db = null; }
-    try { downloads = await window.claude.use('downloads'); } catch(e) { downloads = null; }
-
-    if (!db) {
-      $('connStatus').innerHTML = '<span class="dot"></span><span>armazenamento indisponível</span>';
-      return;
-    }
     subscribe();
   }
 
