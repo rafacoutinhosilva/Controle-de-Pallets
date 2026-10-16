@@ -15,35 +15,25 @@
   --panel-2: #1c1c1f;
   --border: #2a2a2e;
   --text: #f5f5f2;
-  --text-dim: #9a9a9f;
-  --text-faint: #5b5b60;
+  --text-dim: #a0a0a5;
+  --text-faint: #77777c;
   --gold: #d4af37;
   --gold-dark: #a9841f;
   --gold-dim: rgba(212,175,55,0.14);
-  --white: #ffffff;
-  --grey: #9a9a9f;
   --red: #e2585d;
   --red-dim: rgba(226,88,93,0.14);
+  --grey: #a0a0a5;
+  --grey-dim: rgba(160,160,165,0.14);
   --radius: 10px;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html { scroll-padding-top: env(safe-area-inset-top, 0px); }
 html, body {
   margin: 0; min-height: 100%;
   background: var(--bg); color: var(--text);
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #0b0b0c; --panel: #151517; --panel-2: #1c1c1f;
-    --border: #2a2a2e; --text: #f5f5f2; --text-dim: #9a9a9f;
-  }
-}
-a { color: inherit; }
 button { font-family: inherit; }
 
 /* ===== Top bar ===== */
@@ -60,8 +50,7 @@ header.top {
   width: 38px; height: 38px; border-radius: 8px;
   background: linear-gradient(150deg, var(--gold), var(--gold-dark));
   display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 15px; color: #14110a; letter-spacing: -0.02em;
-  flex-shrink: 0;
+  font-weight: 800; font-size: 15px; color: #14110a; letter-spacing: -0.02em; flex-shrink: 0;
 }
 .brand .names { line-height: 1.15; }
 .brand .company { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; }
@@ -78,7 +67,6 @@ nav.tabs button.active { background: var(--gold); color: #14110a; }
   border: none; border-radius: 8px; padding: 10px 16px;
   font-size: 13.5px; font-weight: 700; cursor: pointer;
   transition: filter .12s ease, transform .06s ease;
-  font-family: inherit;
 }
 .btn:active { transform: scale(0.98); }
 .btn-gold { background: var(--gold); color: #14110a; }
@@ -87,7 +75,7 @@ nav.tabs button.active { background: var(--gold); color: #14110a; }
 .btn-ghost:hover { border-color: var(--text-faint); }
 .btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(226,88,93,0.35); }
 .btn-danger:hover { background: var(--red-dim); }
-.btn-sm { padding: 6px 11px; font-size: 12px; }
+.btn-sm { padding: 6px 11px; font-size: 12px; white-space: nowrap; }
 
 .conn { font-size: 11.5px; color: var(--text-faint); display: flex; align-items: center; gap: 6px; }
 .conn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); }
@@ -97,23 +85,20 @@ nav.tabs button.active { background: var(--gold); color: #14110a; }
 .app { max-width: 1360px; margin: 0 auto; padding: 24px 24px 100px; }
 .view { display: none; }
 .view.active { display: block; }
-
 .section-title { font-size: 13px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.03em; margin: 28px 0 12px; }
 .section-title:first-child { margin-top: 0; }
 
 /* ===== Stat cards ===== */
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.stat {
-  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px 18px;
-}
-.stat .num { font-size: 25px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.stat { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+.stat .num { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 .stat .lbl { color: var(--text-dim); font-size: 11.5px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+.stat .sub { color: var(--text-faint); font-size: 11.5px; margin-top: 3px; }
 .stat.gold .num { color: var(--gold); }
 .stat.red .num { color: var(--red); }
 
 /* ===== Alerts ===== */
-.alerts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.alerts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
 .alert-card {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 14px 16px; cursor: pointer; transition: border-color .12s ease;
@@ -121,24 +106,26 @@ nav.tabs button.active { background: var(--gold); color: #14110a; }
 }
 .alert-card:hover { border-color: var(--text-faint); }
 .alert-card .txt { font-size: 12.5px; color: var(--text-dim); line-height: 1.4; }
-.alert-card .cnt { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.alert-card.warn .cnt { color: var(--red); }
+.alert-card .cnt { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--red); }
 .alerts-empty { color: var(--text-faint); font-size: 13px; padding: 6px 2px; }
 
 /* ===== Charts + ranking ===== */
 .dash-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; margin-top: 12px; }
-.dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-.panel-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+.dash-grid-2 { display: grid; grid-template-columns: 1fr 1.1fr; gap: 12px; margin-top: 12px; }
+.panel-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; min-width: 0; }
 .panel-card h3 { font-size: 13px; font-weight: 700; color: var(--text-dim); margin: 0 0 14px; text-transform: uppercase; letter-spacing: 0.03em; }
-.canvas-wrap { position: relative; height: 230px; }
-.canvas-wrap.small { height: 220px; max-width: 220px; margin: 0 auto; }
-.chart-empty { color: var(--text-faint); font-size: 13px; text-align: center; padding: 60px 10px; }
+.canvas-wrap { position: relative; height: 240px; }
+.canvas-wrap.small { height: 230px; max-width: 240px; margin: 0 auto; }
+.chart-empty { color: var(--text-faint); font-size: 13px; text-align: center; padding: 70px 10px; }
 
+.rank-wrap { overflow-x: auto; }
 .rank-table { width: 100%; border-collapse: collapse; }
-.rank-table th { text-align: left; font-size: 11px; color: var(--text-faint); font-weight: 600; padding: 8px 6px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.02em; }
+.rank-table th { text-align: left; font-size: 11px; color: var(--text-faint); font-weight: 600; padding: 8px 6px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap; }
 .rank-table td { padding: 10px 6px; font-size: 13px; border-bottom: 1px solid var(--border); }
 .rank-table tr:last-child td { border-bottom: none; }
-.rank-table td.num { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--gold); }
+.rank-table td.num { font-variant-numeric: tabular-nums; font-weight: 600; }
+.rank-table td.gold { color: var(--gold); }
+.rank-table td.red { color: var(--red); }
 
 /* ===== Toolbar / filters ===== */
 .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -151,14 +138,13 @@ nav.tabs button.active { background: var(--gold); color: #14110a; }
 
 .filters-bar {
   background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 14px 16px; margin-bottom: 14px;
-  display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+  padding: 14px 16px; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
 }
 .filter-field { display: flex; flex-direction: column; gap: 5px; }
 .filter-field label { font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.03em; }
 .filter-field input, .filter-field select {
   background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
-  border-radius: 7px; padding: 8px 10px; font-size: 13px; font-family: inherit; min-width: 130px;
+  border-radius: 7px; padding: 8px 10px; font-size: 13px; font-family: inherit; min-width: 130px; max-width: 200px;
 }
 .filter-field input:focus, .filter-field select:focus { outline: none; border-color: var(--gold); }
 .chip-toggle {
@@ -167,58 +153,60 @@ nav.tabs button.active { background: var(--gold); color: #14110a; }
 }
 .chip-toggle.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
 .chip-toggle.destaque { background: var(--gold); color: #14110a; border-color: var(--gold); }
-.chip-toggle.destaque.active { background: var(--gold-dark); color: #14110a; }
+.chip-toggle.destaque.active { background: var(--gold-dark); border-color: var(--gold-dark); color: #14110a; }
 .filters-clear { font-size: 12px; color: var(--text-faint); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 8px 4px; }
 
 /* ===== Table ===== */
 .table-wrap { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; }
-table.data { width: 100%; border-collapse: collapse; min-width: 1180px; }
+table.data { width: 100%; border-collapse: collapse; min-width: 1240px; }
 table.data thead th {
   text-align: left; font-size: 11px; color: var(--text-faint); font-weight: 600;
   padding: 11px 12px; border-bottom: 1px solid var(--border); white-space: nowrap;
-  cursor: pointer; user-select: none; text-transform: uppercase; letter-spacing: 0.02em;
+  user-select: none; text-transform: uppercase; letter-spacing: 0.02em;
 }
-table.data thead th:hover { color: var(--text-dim); }
+table.data thead th[data-sort] { cursor: pointer; }
+table.data thead th[data-sort]:hover { color: var(--text-dim); }
 table.data thead th .arrow { margin-left: 3px; color: var(--gold); }
 table.data tbody td { padding: 12px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: top; }
 table.data tbody tr:last-child td { border-bottom: none; }
 table.data tbody tr:hover { background: rgba(255,255,255,0.02); }
 td.num { font-variant-numeric: tabular-nums; }
 td.dim { color: var(--text-dim); }
-td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
+td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
+.stack { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.stack .main { font-weight: 500; }
+.stack .main.gold { color: var(--gold); font-weight: 700; font-size: 15px; }
+.stack .sub { font-size: 11.5px; color: var(--text-dim); }
 .placa-pill {
   display: inline-block; font-weight: 700; letter-spacing: 0.03em;
-  background: var(--panel-2); border: 1px solid var(--border); border-radius: 5px;
-  padding: 2px 7px; font-size: 11.5px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; font-size: 11.5px;
 }
 .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 20px; white-space: nowrap; }
 .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-.badge.pendente { background: var(--red-dim); color: var(--red); }
-.badge.parcial { background: var(--gold-dim); color: var(--gold); }
-.badge.devolvido { background: rgba(154,154,159,0.15); color: var(--grey); }
-.badge.recebido_base { background: var(--gold); color: #14110a; }
-.dias-tag { font-size: 11.5px; color: var(--text-dim); }
+.badge.aguardando_entrega { background: var(--grey-dim); color: var(--grey); }
+.badge.com_portoex { background: var(--gold-dim); color: var(--gold); }
+.badge.no_destino { background: var(--red-dim); color: var(--red); }
+.badge.parcial { background: rgba(255,255,255,0.1); color: #fff; }
+.badge.devolvido { background: var(--gold); color: #14110a; }
+.dias-tag { font-size: 12px; color: var(--text-dim); }
 .dias-tag.alert { color: var(--red); font-weight: 700; }
-.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; min-width: 150px; }
 
 .empty { padding: 60px 24px; text-align: center; color: var(--text-dim); }
 .empty .big { font-size: 15px; color: var(--text); font-weight: 600; margin-bottom: 6px; }
-.empty .small { font-size: 13px; max-width: 380px; margin: 0 auto; }
+.empty .small { font-size: 13px; max-width: 400px; margin: 0 auto; line-height: 1.5; }
 
 .pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-top: 1px solid var(--border); }
 .pagination .info { font-size: 12px; color: var(--text-faint); }
 .pagination .controls { display: flex; gap: 6px; }
-.pagination button {
-  border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
-  border-radius: 6px; padding: 6px 11px; font-size: 12.5px; cursor: pointer;
-}
+.pagination button { border: 1px solid var(--border); background: var(--panel-2); color: var(--text); border-radius: 6px; padding: 6px 11px; font-size: 12.5px; cursor: pointer; }
 .pagination button:disabled { opacity: 0.35; cursor: default; }
 
 /* ===== Drawer (form) ===== */
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 50; }
 .overlay.show { opacity: 1; pointer-events: auto; }
 .drawer {
-  position: fixed; top: 0; right: 0; height: 100%; width: 440px; max-width: 94vw;
+  position: fixed; top: 0; right: 0; height: 100%; width: 460px; max-width: 100vw;
   background: var(--panel); border-left: 1px solid var(--border);
   transform: translateX(100%); transition: transform .22s cubic-bezier(.2,.7,.2,1);
   z-index: 51; display: flex; flex-direction: column;
@@ -227,39 +215,56 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
 .drawer.show { transform: translateX(0); }
 .drawer-head { padding: 20px 22px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
 .drawer-head h2 { font-size: 16px; margin: 0; font-weight: 700; }
-.drawer-head button { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; line-height: 1; padding: 4px; }
+.drawer-head button { background: none; border: none; color: var(--text-dim); font-size: 22px; cursor: pointer; line-height: 1; padding: 4px; }
 .drawer-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
-.field { margin-bottom: 15px; }
+.drawer-foot { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+.drawer-foot .btn { flex: 1; }
+
+.form-section { margin-bottom: 24px; }
+.form-section-title {
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold);
+  margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.form-section-title .opt { color: var(--text-faint); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11.5px; }
+.field { margin-bottom: 14px; }
 .field label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; font-weight: 500; }
 .field input, .field select, .field textarea {
   width: 100%; background: var(--panel-2); border: 1px solid var(--border); border-radius: 7px;
   padding: 10px 12px; color: var(--text); font-size: 14px; font-family: inherit;
 }
-.field input:disabled { color: var(--text-faint); cursor: not-allowed; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--gold); }
-.field textarea { resize: vertical; min-height: 56px; }
+.field textarea { resize: vertical; min-height: 64px; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.hint { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+.hint { font-size: 11.5px; color: var(--text-faint); margin-top: 5px; line-height: 1.4; }
+
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.seg button {
+  border: 1px solid var(--border); background: var(--panel-2); color: var(--text-dim);
+  border-radius: 8px; padding: 12px 10px; font-size: 13px; font-weight: 600; cursor: pointer; line-height: 1.3;
+}
+.seg button.active[data-v="destino"] { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.seg button.active[data-v="portoex"] { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+.link-btn { background: none; border: none; color: var(--text-faint); font-size: 12px; text-decoration: underline; cursor: pointer; padding: 2px 0; }
+
 .computed-box {
   background: var(--panel-2); border: 1px dashed var(--border); border-radius: 8px;
-  padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+  padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 18px;
 }
 .computed-box .k { font-size: 11.5px; color: var(--text-faint); }
-.computed-box .v { font-size: 18px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
-.divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
-.drawer-foot { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-.drawer-foot .btn { flex: 1; }
+.computed-box .v { font-size: 20px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
 
-/* ===== Devolucao modal ===== */
+.hist-item { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.hist-item .t { font-size: 13px; font-weight: 600; }
+.hist-item .s { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; line-height: 1.4; }
+
+/* ===== Devolução modal ===== */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 60; padding: 16px; }
 .modal-overlay.show { display: flex; }
-.modal {
-  background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
-  width: 420px; max-width: 100%; max-height: 90vh; overflow-y: auto;
-}
+.modal { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; width: 440px; max-width: 100%; max-height: 92vh; overflow-y: auto; }
 .modal-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .modal-head h2 { font-size: 15.5px; margin: 0; font-weight: 700; }
-.modal-head button { background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; }
+.modal-head button { background: none; border: none; color: var(--text-dim); font-size: 22px; cursor: pointer; }
 .modal-body { padding: 18px 20px; }
 .modal-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; background: var(--panel-2); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
 .modal-summary .k { font-size: 10.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.02em; }
@@ -269,29 +274,43 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
 .modal-foot .btn { flex: 1; }
 
 /* ===== Toast ===== */
-.toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.toast {
-  background: #1c1c1f; border: 1px solid var(--gold); color: var(--text);
-  padding: 11px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: toast-in .2s ease;
-}
+.toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; flex-direction: column; gap: 8px; align-items: center; width: calc(100% - 32px); max-width: 460px; pointer-events: none; }
+.toast { background: #1c1c1f; border: 1px solid var(--gold); color: var(--text); padding: 11px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: toast-in .2s ease; text-align: center; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ===== Mobile FAB ===== */
 .fab {
-  display: none; position: fixed; bottom: 22px; right: 18px; z-index: 40;
-  width: 56px; height: 56px; border-radius: 50%; background: var(--gold); color: #14110a;
-  border: none; font-size: 26px; font-weight: 700; box-shadow: 0 8px 20px rgba(0,0,0,0.5); cursor: pointer;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: none; position: fixed; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); right: 18px; z-index: 40;
+  width: 58px; height: 58px; border-radius: 50%; background: var(--gold); color: #14110a;
+  border: none; font-size: 28px; font-weight: 700; box-shadow: 0 8px 20px rgba(0,0,0,0.5); cursor: pointer;
 }
 
 @media (max-width: 900px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .dash-grid, .dash-grid-2 { grid-template-columns: 1fr; }
-  header.top .btn-gold.desktop-only { display: none; }
+  header.top { padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); gap: 12px; }
+  header.top .desktop-only { display: none; }
   .fab { display: flex; align-items: center; justify-content: center; }
-  .field-row { grid-template-columns: 1fr; }
-  .app { padding: 18px 14px 100px; }
+  .app { padding: 18px 14px 110px; }
+}
+
+/* Tabela vira cartões no celular */
+@media (max-width: 760px) {
+  .table-wrap { background: transparent; border: none; overflow: visible; }
+  table.data { min-width: 0; display: block; }
+  table.data thead { display: none; }
+  table.data tbody { display: block; }
+  table.data tbody tr { display: block; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; padding: 8px 14px; }
+  table.data tbody td { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; border: none; padding: 7px 0; text-align: right; max-width: none; }
+  table.data tbody td::before { content: attr(data-label); color: var(--text-faint); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; text-align: left; flex-shrink: 0; padding-top: 2px; }
+  table.data tbody td .stack { align-items: flex-end; }
+  table.data tbody td.actions { display: block; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 4px; }
+  table.data tbody td.actions::before { display: none; }
+  .row-actions { min-width: 0; }
+  .row-actions .btn { flex: 1; padding: 10px 8px; }
+  .pagination { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+  .filter-field input, .filter-field select { max-width: none; }
+  .filters-bar .filter-field { flex: 1 1 140px; }
 }
 </style>
 </head>
@@ -318,15 +337,14 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
   <!-- ============ DASHBOARD ============ -->
   <div class="view active" id="view-dashboard">
 
-    <div class="section-title">Pallets em operação</div>
+    <div class="section-title">Onde estão os pallets</div>
     <div class="stats-grid">
-      <div class="stat"><div class="num" id="stTotalDeixados">0</div><div class="lbl">Total deixados</div></div>
-      <div class="stat"><div class="num" id="stTotalDevolvidos">0</div><div class="lbl">Total devolvidos</div></div>
-      <div class="stat gold"><div class="num" id="stSaldoPendente">0</div><div class="lbl">Saldo pendente</div></div>
-      <div class="stat"><div class="num" id="stClientesPendentes">0</div><div class="lbl">Clientes pendentes</div></div>
-      <div class="stat"><div class="num" id="stDevolucoesPendentes">0</div><div class="lbl">Devoluções pendentes</div></div>
-      <div class="stat"><div class="num" id="stAguardandoBase">0</div><div class="lbl">Aguardando recebimento</div></div>
-      <div class="stat gold"><div class="num" id="stRecebidosBase">0</div><div class="lbl">Recebidos na base</div></div>
+      <div class="stat"><div class="num" id="stColetado">0</div><div class="lbl">Total coletado</div></div>
+      <div class="stat"><div class="num" id="stDevolvido">0</div><div class="lbl">Total devolvido</div></div>
+      <div class="stat gold"><div class="num" id="stSaldo">0</div><div class="lbl">Saldo pendente</div><div class="sub">a devolver aos clientes de origem</div></div>
+      <div class="stat"><div class="num" id="stPortoex">0</div><div class="lbl">Com a PortoEX</div><div class="sub">no caminhão ou voltaram com a gente</div></div>
+      <div class="stat red"><div class="num" id="stDestino">0</div><div class="lbl">Nos destinos</div><div class="sub">cliente do cliente / armazém / redespacho</div></div>
+      <div class="stat"><div class="num" id="stClientes">0</div><div class="lbl">Clientes de origem com saldo</div></div>
     </div>
 
     <div class="section-title">Atenção</div>
@@ -336,24 +354,24 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
     <div class="dash-grid">
       <div class="panel-card">
         <h3>Evolução dos pallets</h3>
-        <div class="canvas-wrap" id="wrapEvolucao"><canvas id="chartEvolucao"></canvas></div>
+        <div class="canvas-wrap" id="wrapEvolucao"></div>
       </div>
       <div class="panel-card">
-        <h3>Status dos pallets</h3>
-        <div class="canvas-wrap small" id="wrapStatus"><canvas id="chartStatus"></canvas></div>
+        <h3>Situação dos pallets</h3>
+        <div class="canvas-wrap small" id="wrapSituacao"></div>
       </div>
     </div>
 
     <div class="dash-grid-2">
       <div class="panel-card">
-        <h3>Pallets por cliente (saldo pendente)</h3>
-        <div class="canvas-wrap" id="wrapCliente"><canvas id="chartCliente"></canvas></div>
+        <h3>Saldo por cliente de origem</h3>
+        <div class="canvas-wrap" id="wrapCliente"></div>
       </div>
       <div class="panel-card">
-        <h3>Clientes com pallets pendentes</h3>
-        <div id="rankWrap">
+        <h3>Clientes de origem com pallets a receber</h3>
+        <div class="rank-wrap">
           <table class="rank-table">
-            <thead><tr><th>Cliente</th><th>Pendentes</th><th>Última mov.</th><th>Dias</th></tr></thead>
+            <thead><tr><th>Cliente</th><th>A receber</th><th>Com a PortoEX</th><th>Nos destinos</th><th>Dias</th></tr></thead>
             <tbody id="rankBody"></tbody>
           </table>
           <div class="chart-empty" id="rankEmpty" style="display:none">Nenhum cliente com saldo pendente.</div>
@@ -367,7 +385,7 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
   <div class="view" id="view-controle">
 
     <div class="toolbar">
-      <input class="search" id="searchInput" placeholder="Buscar por cliente, motorista ou placa…">
+      <input class="search" id="searchInput" placeholder="Buscar por cliente, destino, motorista ou placa…">
       <button class="btn btn-gold" id="btnNewTable">+ Novo registro</button>
       <button class="btn btn-ghost" id="btnExport">Exportar CSV</button>
     </div>
@@ -375,34 +393,21 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
     <div class="filters-bar">
       <button class="chip-toggle destaque" id="chipPendentes">Pallets pendentes</button>
       <button class="chip-toggle" id="chipDevolvidos">Somente devolvidos</button>
+      <div class="filter-field"><label>Coleta de</label><input type="date" id="fDataIni"></div>
+      <div class="filter-field"><label>Coleta até</label><input type="date" id="fDataFim"></div>
+      <div class="filter-field"><label>Cliente (origem)</label><select id="fCliente"><option value="">Todos</option></select></div>
+      <div class="filter-field"><label>Destino</label><select id="fDestino"><option value="">Todos</option></select></div>
+      <div class="filter-field"><label>Motorista</label><select id="fMotorista"><option value="">Todos</option></select></div>
+      <div class="filter-field"><label>Placa</label><select id="fPlaca"><option value="">Todas</option></select></div>
       <div class="filter-field">
-        <label>De</label>
-        <input type="date" id="fDataIni">
-      </div>
-      <div class="filter-field">
-        <label>Até</label>
-        <input type="date" id="fDataFim">
-      </div>
-      <div class="filter-field">
-        <label>Cliente</label>
-        <select id="fCliente"><option value="">Todos</option></select>
-      </div>
-      <div class="filter-field">
-        <label>Motorista</label>
-        <select id="fMotorista"><option value="">Todos</option></select>
-      </div>
-      <div class="filter-field">
-        <label>Placa</label>
-        <select id="fPlaca"><option value="">Todas</option></select>
-      </div>
-      <div class="filter-field">
-        <label>Status</label>
+        <label>Situação</label>
         <select id="fStatus">
-          <option value="">Todos</option>
-          <option value="pendente">Pendente</option>
+          <option value="">Todas</option>
+          <option value="aguardando_entrega">Aguardando entrega</option>
+          <option value="com_portoex">Com a PortoEX</option>
+          <option value="no_destino">No destino</option>
           <option value="parcial">Parcialmente devolvido</option>
           <option value="devolvido">Devolvido</option>
-          <option value="recebido_base">Recebido na base</option>
         </select>
       </div>
       <button class="filters-clear" id="btnClearFilters">Limpar filtros</button>
@@ -412,18 +417,15 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
       <table class="data" id="table" style="display:none">
         <thead>
           <tr>
-            <th data-sort="data">Data<span class="arrow" id="arrow-data"></span></th>
-            <th data-sort="motorista">Motorista<span class="arrow" id="arrow-motorista"></span></th>
-            <th data-sort="placa">Placa<span class="arrow" id="arrow-placa"></span></th>
-            <th data-sort="cliente">Cliente<span class="arrow" id="arrow-cliente"></span></th>
-            <th>Recebedor entrega</th>
-            <th data-sort="qtdDeixados">Deixados<span class="arrow" id="arrow-qtdDeixados"></span></th>
-            <th>Devolução</th>
+            <th data-sort="coletaData">Coleta<span class="arrow" id="arrow-coletaData"></span></th>
+            <th data-sort="cliente">Cliente / Remetente<span class="arrow" id="arrow-cliente"></span></th>
+            <th>Motorista / Placa</th>
+            <th data-sort="qtd">Pallets<span class="arrow" id="arrow-qtd"></span></th>
+            <th data-sort="entregaData">Entrega<span class="arrow" id="arrow-entregaData"></span></th>
+            <th data-sort="destino">Destino<span class="arrow" id="arrow-destino"></span></th>
+            <th data-sort="status">Situação<span class="arrow" id="arrow-status"></span></th>
             <th data-sort="saldo">Saldo<span class="arrow" id="arrow-saldo"></span></th>
-            <th>Dias</th>
-            <th data-sort="status">Status<span class="arrow" id="arrow-status"></span></th>
-            <th>Receb. na base</th>
-            <th>Receb. base (nome)</th>
+            <th data-sort="dias">Dias<span class="arrow" id="arrow-dias"></span></th>
             <th>Obs.</th>
             <th></th>
           </tr>
@@ -431,8 +433,8 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
         <tbody id="tbody"></tbody>
       </table>
       <div class="empty" id="emptyState">
-        <div class="big">Nenhum registro ainda</div>
-        <div class="small">Cadastre a primeira operação clicando em "Novo registro". Tudo fica salvo automaticamente e disponível para toda a equipe.</div>
+        <div class="big" id="emptyBig">Nenhum registro ainda</div>
+        <div class="small" id="emptySmall">Cadastre a primeira coleta clicando em "Novo registro". Tudo fica salvo automaticamente e disponível para toda a equipe.</div>
       </div>
       <div class="pagination" id="pagination" style="display:none">
         <div class="info" id="pageInfo"></div>
@@ -447,73 +449,89 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
 
 </div>
 
-<button class="fab" id="fab">+</button>
+<button class="fab" id="fab" aria-label="Novo registro">+</button>
 
-<!-- ============ DRAWER: novo/editar registro ============ -->
+<!-- ============ DRAWER: novo / editar registro ============ -->
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-head">
     <h2 id="drawerTitle">Novo registro</h2>
-    <button id="btnClose">&times;</button>
+    <button id="btnClose" aria-label="Fechar">&times;</button>
   </div>
-  <div class="drawer-body">
-    <div class="field-row">
-      <div class="field">
-        <label>Data</label>
-        <input id="fData" type="date">
+  <div class="drawer-body" id="drawerBody">
+
+    <div class="form-section" id="secColeta">
+      <div class="form-section-title"><span>1 · Coleta</span></div>
+      <div class="field-row">
+        <div class="field"><label>Data</label><input id="fcData" type="date"></div>
+        <div class="field"><label>Horário</label><input id="fcHorario" type="time"></div>
       </div>
       <div class="field">
-        <label>Placa</label>
-        <input id="fPlaca_i" list="placasList" placeholder="ABC1D23" style="text-transform:uppercase">
-        <datalist id="placasList"></datalist>
+        <label>Cliente / Remetente</label>
+        <input id="fcCliente" list="nomesList" placeholder="De quem os pallets foram coletados">
+      </div>
+      <div class="field">
+        <label>Endereço</label>
+        <input id="fcEndereco" placeholder="Endereço da coleta">
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Motorista</label><input id="fcMotorista" list="motoristasList" placeholder="Nome"></div>
+        <div class="field"><label>Placa</label><input id="fcPlaca" list="placasList" placeholder="ABC1D23" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field">
+        <label>Quantidade de pallets coletados</label>
+        <input id="fcQtd" type="number" min="1" step="1" inputmode="numeric" placeholder="0">
       </div>
     </div>
-    <div class="field">
-      <label>Motorista</label>
-      <input id="fMotorista_i" list="motoristasList" placeholder="Nome do motorista">
-      <datalist id="motoristasList"></datalist>
-    </div>
-    <div class="field">
-      <label>Cliente</label>
-      <input id="fCliente_i" list="clientesList" placeholder="Nome do cliente">
-      <datalist id="clientesList"></datalist>
-    </div>
-    <div class="field">
-      <label>Nome do recebedor na entrega</label>
-      <input id="fRecebedorEntrega" placeholder="Quem recebeu no cliente">
-    </div>
-    <div class="field">
-      <label>Qtd. pallets deixados</label>
-      <input id="fQtdDeixados" type="number" min="0" placeholder="0">
-    </div>
 
-    <hr class="divider">
-
-    <div class="computed-box">
-      <div>
-        <div class="k">Saldo pendente (automático)</div>
-        <div class="v" id="calcSaldo">0</div>
+    <div class="form-section" id="secEntrega">
+      <div class="form-section-title"><span>2 · Entrega</span><span class="opt">preencha quando entregar</span></div>
+      <div class="field-row">
+        <div class="field"><label>Data</label><input id="feData" type="date"></div>
+        <div class="field"><label>Horário</label><input id="feHorario" type="time"></div>
       </div>
-      <div id="calcStatusBadge"></div>
+      <div class="field">
+        <label>Cliente / Armazém / Redespacho</label>
+        <input id="feDestino" list="nomesList" placeholder="Onde a carga foi entregue">
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Motorista</label><input id="feMotorista" list="motoristasList" placeholder="Nome"></div>
+        <div class="field"><label>Placa</label><input id="fePlaca" list="placasList" placeholder="ABC1D23" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field">
+        <label>O que aconteceu com os pallets?</label>
+        <div class="seg" id="segFicaram">
+          <button type="button" data-v="destino">Ficaram no destino</button>
+          <button type="button" data-v="portoex">Voltaram com a PortoEX</button>
+        </div>
+        <div class="hint">Se ficaram no cliente do cliente, anote nas observações.</div>
+      </div>
+      <button type="button" class="link-btn" id="btnLimparEntrega">Limpar dados da entrega</button>
     </div>
 
-    <div class="field">
-      <label>Data da devolução</label>
-      <input id="fDataDevolucao" type="date" disabled>
-      <div class="hint">Preenchida automaticamente ao usar "Registrar devolução"</div>
+    <div class="form-section">
+      <div class="field">
+        <label>Observações</label>
+        <textarea id="fObs" placeholder="Ex.: pallets ficaram no cliente do cliente (nome da empresa)…"></textarea>
+      </div>
     </div>
-    <div class="field">
-      <label>Data de recebimento na base</label>
-      <input id="fDataRecebimentoBase" type="date">
+
+    <div class="form-section" id="secResumo">
+      <div class="form-section-title"><span>Resumo (automático)</span></div>
+      <div class="computed-box">
+        <div>
+          <div class="k">Saldo pendente</div>
+          <div class="v" id="calcSaldo">0</div>
+        </div>
+        <div id="calcStatusBadge"></div>
+      </div>
+      <div id="histBox" style="display:none">
+        <div class="field"><label>Devoluções registradas</label></div>
+        <div id="histList"></div>
+        <div class="hint">Para registrar uma nova devolução, use o botão "Registrar devolução" na tabela.</div>
+      </div>
     </div>
-    <div class="field">
-      <label>Nome do recebedor na base</label>
-      <input id="fRecebedorBase" placeholder="Quem recebeu na base">
-    </div>
-    <div class="field">
-      <label>Observações</label>
-      <textarea id="fObs" placeholder="Detalhes adicionais…"></textarea>
-    </div>
+
   </div>
   <div class="drawer-foot">
     <button class="btn btn-ghost" id="btnCancel">Cancelar</button>
@@ -521,32 +539,41 @@ td.obs { max-width: 180px; color: var(--text-dim); font-size: 12px; }
   </div>
 </div>
 
+<datalist id="nomesList"></datalist>
+<datalist id="motoristasList"></datalist>
+<datalist id="placasList"></datalist>
+
 <!-- ============ MODAL: registrar devolução ============ -->
 <div class="modal-overlay" id="devOverlay">
   <div class="modal">
     <div class="modal-head">
       <h2>Registrar devolução</h2>
-      <button id="devClose">&times;</button>
+      <button id="devClose" aria-label="Fechar">&times;</button>
     </div>
     <div class="modal-body">
       <div class="modal-summary">
-        <div><div class="k">Cliente</div><div class="v" id="devCliente">—</div></div>
-        <div><div class="k">Data da operação</div><div class="v" id="devData">—</div></div>
-        <div><div class="k">Deixados</div><div class="v" id="devDeixados">0</div></div>
-        <div><div class="k">Já devolvido</div><div class="v" id="devJaDevolvido">0</div></div>
-        <div><div class="k">Saldo atual</div><div class="v saldo" id="devSaldoAtual">0</div></div>
+        <div><div class="k">Devolver para</div><div class="v" id="devCliente">—</div></div>
+        <div><div class="k">Data da coleta</div><div class="v" id="devColetaData">—</div></div>
+        <div><div class="k">Coletados</div><div class="v" id="devColetados">0</div></div>
+        <div><div class="k">Já devolvido</div><div class="v" id="devJa">0</div></div>
+        <div><div class="k">Saldo atual</div><div class="v saldo" id="devSaldo">0</div></div>
+        <div><div class="k">Onde estão agora</div><div class="v" id="devOnde">—</div></div>
       </div>
       <div class="field">
         <label>Quantidade devolvida agora</label>
-        <input id="devQtd" type="number" min="1" placeholder="0">
+        <input id="devQtd" type="number" min="1" step="1" inputmode="numeric">
       </div>
       <div class="field">
         <label>Data da devolução</label>
-        <input id="devData_i" type="date">
+        <input id="devData" type="date">
       </div>
       <div class="field">
-        <label>Observação</label>
-        <textarea id="devObs" placeholder="Detalhes sobre essa devolução (opcional)"></textarea>
+        <label>Quem recebeu</label>
+        <input id="devRecebido" placeholder="Nome de quem recebeu no cliente de origem">
+      </div>
+      <div class="field">
+        <label>Observação (opcional)</label>
+        <textarea id="devObs" placeholder="Detalhes sobre essa devolução"></textarea>
       </div>
     </div>
     <div class="modal-foot">
@@ -577,194 +604,243 @@ const db = getFirestore(firebaseApp);
 const operacoesCol = collection(db, 'operacoes');
 
 (function(){
+  const ALERTA_DIAS = 15;
+  const PAGE_SIZE = 15;
+  const STATUS_LABEL = {
+    aguardando_entrega: 'Aguardando entrega',
+    com_portoex: 'Com a PortoEX',
+    no_destino: 'No destino',
+    parcial: 'Parcial',
+    devolvido: 'Devolvido'
+  };
+
   let records = [];
   let editingId = null;
-  let devolucaoTargetId = null;
-  let unsub = null;
-
-  let filters = { dataIni:'', dataFim:'', cliente:'', motorista:'', placa:'', status:'', somentePendentes:true, somenteDevolvidos:false };
-  let sortState = { field:'data', dir:'desc' };
+  let ficaram = null;            // estado do formulário: 'destino' | 'portoex' | null
+  let stagedDevolucoes = [];     // estado do formulário: devoluções do registro em edição
+  let devTargetId = null;
+  let filters = defaultFilters();
+  let sortState = { field: 'coletaData', dir: 'desc' };
   let page = 1;
-  const PAGE_SIZE = 15;
-
-  let chartEvolucao=null, chartStatus=null, chartCliente=null;
+  const charts = {};
 
   const $ = (id) => document.getElementById(id);
 
+  function defaultFilters(){
+    return { dataIni:'', dataFim:'', cliente:'', destino:'', motorista:'', placa:'', status:'', somentePendentes:false, somenteDevolvidos:false };
+  }
+
   /* ---------- helpers ---------- */
-  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function todayISO(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
   function fmtDate(iso){
     if (!iso) return '—';
     const [y,m,d] = iso.split('-');
-    if (!y||!m||!d) return iso;
+    if (!y || !m || !d) return iso;
     return `${d}/${m}/${y}`;
   }
-  function escapeHtml(s){
-    return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
-  function computeQtdDevolvida(r){
-    return (r.devolucoes||[]).reduce((s,d)=> s + (Number(d.qtd)||0), 0);
-  }
-  function computeSaldo(r){
-    return Math.max(0, (Number(r.qtdDeixados)||0) - computeQtdDevolvida(r));
-  }
-  function computeStatus(r){
-    if (r.dataRecebimentoBase) return 'recebido_base';
-    const dev = computeQtdDevolvida(r);
-    if (dev === 0) return 'pendente';
-    if (computeSaldo(r) > 0) return 'parcial';
-    return 'devolvido';
-  }
-  function diasPendentes(r){
-    const saldo = computeSaldo(r);
-    if (saldo <= 0 || !r.data) return null;
-    const d0 = new Date(r.data + 'T00:00:00');
-    const d1 = new Date(todayISO() + 'T00:00:00');
-    return Math.max(0, Math.round((d1 - d0) / 86400000));
-  }
-  function statusLabel(s){
-    return { pendente:'Pendente', parcial:'Parcial', devolvido:'Devolvido', recebido_base:'Recebido na base' }[s] || s;
-  }
-  function statusBadgeHtml(s){
-    return `<span class="badge ${s}"><span class="dot"></span>${statusLabel(s)}</span>`;
+  function uniqueSorted(arr){
+    return Array.from(new Set(arr.filter(Boolean))).sort((a,b) => a.localeCompare(b, 'pt-BR'));
   }
   function toast(msg){
     const el = document.createElement('div');
     el.className = 'toast';
     el.textContent = msg;
     $('toastWrap').appendChild(el);
-    setTimeout(()=>{ el.remove(); }, 3200);
-  }
-  function uniqueSorted(arr){
-    return Array.from(new Set(arr.filter(Boolean))).sort((a,b)=> a.localeCompare(b, 'pt-BR'));
+    setTimeout(() => el.remove(), 3600);
   }
 
-  /* ---------- filters / derived list ---------- */
-  function getFilteredRecords(includeSearch){
-    const q = includeSearch ? ($('searchInput').value||'').trim().toLowerCase() : '';
+  /* ---------- regras de negócio (tudo calculado, nada manual) ---------- */
+  const col = (r) => r.coleta || {};
+  const ent = (r) => r.entrega || null;
+  const qtdColetada = (r) => Number(col(r).qtdPaletes) || 0;
+  const qtdDevolvida = (r) => (r.devolucoes || []).reduce((s,d) => s + (Number(d.qtd) || 0), 0);
+  const saldoDe = (r) => Math.max(0, qtdColetada(r) - qtdDevolvida(r));
+
+  // Onde está o saldo que ainda não voltou pro cliente de origem
+  function localPaletes(r){
+    if (saldoDe(r) <= 0) return null;
+    return (ent(r) && ent(r).paletesFicaram === 'destino') ? 'destino' : 'portoex';
+  }
+  function statusDe(r){
+    if (saldoDe(r) <= 0) return 'devolvido';
+    if (qtdDevolvida(r) > 0) return 'parcial';
+    if (!ent(r)) return 'aguardando_entrega';
+    return ent(r).paletesFicaram === 'destino' ? 'no_destino' : 'com_portoex';
+  }
+  function diasPendentes(r){
+    if (saldoDe(r) <= 0 || !col(r).data) return null;
+    const d0 = new Date(col(r).data + 'T00:00:00');
+    const d1 = new Date(todayISO() + 'T00:00:00');
+    return Math.max(0, Math.round((d1 - d0) / 86400000));
+  }
+  function badgeHtml(s){
+    return `<span class="badge ${s}"><span class="dot"></span>${STATUS_LABEL[s] || s}</span>`;
+  }
+  function statusSub(r){
+    const s = statusDe(r);
+    if (s === 'parcial') return `restam ${saldoDe(r)} ${localPaletes(r) === 'destino' ? 'no destino' : 'com a PortoEX'}`;
+    if (s === 'devolvido') {
+      const last = (r.devolucoes || []).slice(-1)[0];
+      if (last) return `${fmtDate(last.data)}${last.recebidoPor ? ' · ' + last.recebidoPor : ''}`;
+    }
+    return '';
+  }
+
+  /* ---------- filtros / ordenação ---------- */
+  function getFilteredRecords(){
+    const q = ($('searchInput').value || '').trim().toLowerCase();
     return records.filter(r => {
-      const status = computeStatus(r);
-      const saldo = computeSaldo(r);
+      const c = col(r), e = ent(r);
+      const saldo = saldoDe(r), status = statusDe(r);
       if (filters.somentePendentes && saldo <= 0) return false;
       if (filters.somenteDevolvidos && saldo > 0) return false;
-      if (filters.dataIni && (r.data||'') < filters.dataIni) return false;
-      if (filters.dataFim && (r.data||'') > filters.dataFim) return false;
-      if (filters.cliente && r.cliente !== filters.cliente) return false;
-      if (filters.motorista && r.motorista !== filters.motorista) return false;
-      if (filters.placa && r.placa !== filters.placa) return false;
+      if (filters.dataIni && (c.data || '') < filters.dataIni) return false;
+      if (filters.dataFim && (c.data || '') > filters.dataFim) return false;
+      if (filters.cliente && c.cliente !== filters.cliente) return false;
+      if (filters.destino && (!e || e.destino !== filters.destino)) return false;
+      if (filters.motorista && c.motorista !== filters.motorista && (!e || e.motorista !== filters.motorista)) return false;
+      if (filters.placa && c.placa !== filters.placa && (!e || e.placa !== filters.placa)) return false;
       if (filters.status && status !== filters.status) return false;
       if (q) {
-        const hay = `${r.cliente||''} ${r.motorista||''} ${r.placa||''}`.toLowerCase();
+        const hay = [c.cliente, c.motorista, c.placa, c.endereco, e && e.destino, e && e.motorista, e && e.placa]
+          .filter(Boolean).join(' ').toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
   }
+  function sortValue(r, f){
+    const c = col(r), e = ent(r) || {};
+    switch (f) {
+      case 'coletaData':  return (c.data || '') + ' ' + (c.horario || '');
+      case 'cliente':     return (c.cliente || '').toLowerCase();
+      case 'qtd':         return qtdColetada(r);
+      case 'entregaData': return e.data ? e.data + ' ' + (e.horario || '') : '';
+      case 'destino':     return (e.destino || '').toLowerCase();
+      case 'status':      return statusDe(r);
+      case 'saldo':       return saldoDe(r);
+      case 'dias':        return diasPendentes(r) ?? -1;
+      default:            return '';
+    }
+  }
   function sortRecords(list){
-    const { field, dir } = sortState;
-    const mult = dir === 'asc' ? 1 : -1;
+    const mult = sortState.dir === 'asc' ? 1 : -1;
     return list.slice().sort((a,b) => {
-      let va, vb;
-      if (field === 'saldo') { va = computeSaldo(a); vb = computeSaldo(b); }
-      else if (field === 'status') { va = computeStatus(a); vb = computeStatus(b); }
-      else if (field === 'qtdDeixados') { va = Number(a.qtdDeixados)||0; vb = Number(b.qtdDeixados)||0; }
-      else { va = a[field] || ''; vb = b[field] || ''; }
-      if (va < vb) return -1*mult;
-      if (va > vb) return 1*mult;
+      const va = sortValue(a, sortState.field), vb = sortValue(b, sortState.field);
+      if (va < vb) return -1 * mult;
+      if (va > vb) return 1 * mult;
       return 0;
     });
   }
 
-  /* ---------- filter dropdown population ---------- */
-  function populateFilterOptions(){
-    const clientes = uniqueSorted(records.map(r=>r.cliente));
-    const motoristas = uniqueSorted(records.map(r=>r.motorista));
-    const placas = uniqueSorted(records.map(r=>r.placa));
-
-    fillSelect($('fCliente'), clientes, 'Todos');
-    fillSelect($('fMotorista'), motoristas, 'Todos');
-    fillSelect($('fPlaca'), placas, 'Todas');
-
-    fillDatalist($('clientesList'), clientes);
-    fillDatalist($('motoristasList'), motoristas);
-    fillDatalist($('placasList'), placas);
-  }
+  /* ---------- listas de sugestão e filtros ---------- */
   function fillSelect(sel, values, allLabel){
     const current = sel.value;
-    sel.innerHTML = `<option value="">${allLabel}</option>` + values.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    sel.innerHTML = `<option value="">${allLabel}</option>` + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
     if (values.includes(current)) sel.value = current;
   }
   function fillDatalist(dl, values){
-    dl.innerHTML = values.map(v=>`<option value="${escapeHtml(v)}">`).join('');
+    dl.innerHTML = values.map(v => `<option value="${esc(v)}">`).join('');
+  }
+  function populateOptions(){
+    const clientes = uniqueSorted(records.map(r => col(r).cliente));
+    const destinos = uniqueSorted(records.map(r => ent(r) && ent(r).destino));
+    const motoristas = uniqueSorted(records.flatMap(r => [col(r).motorista, ent(r) && ent(r).motorista]));
+    const placas = uniqueSorted(records.flatMap(r => [col(r).placa, ent(r) && ent(r).placa]));
+    fillSelect($('fCliente'), clientes, 'Todos');
+    fillSelect($('fDestino'), destinos, 'Todos');
+    fillSelect($('fMotorista'), motoristas, 'Todos');
+    fillSelect($('fPlaca'), placas, 'Todas');
+    fillDatalist($('nomesList'), uniqueSorted([...clientes, ...destinos]));
+    fillDatalist($('motoristasList'), motoristas);
+    fillDatalist($('placasList'), placas);
+  }
+  function syncFilterUI(){
+    $('fDataIni').value = filters.dataIni;
+    $('fDataFim').value = filters.dataFim;
+    $('fCliente').value = filters.cliente;
+    $('fDestino').value = filters.destino;
+    $('fMotorista').value = filters.motorista;
+    $('fPlaca').value = filters.placa;
+    $('fStatus').value = filters.status;
+    $('chipPendentes').classList.toggle('active', filters.somentePendentes);
+    $('chipDevolvidos').classList.toggle('active', filters.somenteDevolvidos);
+    page = 1;
+  }
+  function setStatusFilter(status){
+    filters = defaultFilters(); filters.status = status; syncFilterUI();
+  }
+  function setPendentesFilter(){
+    filters = defaultFilters(); filters.somentePendentes = true; syncFilterUI();
   }
 
-  /* ---------- render: table ---------- */
+  /* ---------- tabela ---------- */
+  const stack = (main, sub) => `<div class="stack"><span class="main">${main}</span>${sub ? `<span class="sub">${sub}</span>` : ''}</div>`;
+
   function renderTable(){
-    const filtered = getFilteredRecords(true);
-    const sorted = sortRecords(filtered);
+    const sorted = sortRecords(getFilteredRecords());
     const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
     if (page > totalPages) page = totalPages;
-    const pageItems = sorted.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+    const items = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     document.querySelectorAll('.arrow').forEach(a => a.textContent = '');
-    const arrowEl = $('arrow-' + sortState.field);
-    if (arrowEl) arrowEl.textContent = sortState.dir === 'asc' ? '↑' : '↓';
+    const arrow = $('arrow-' + sortState.field);
+    if (arrow) arrow.textContent = sortState.dir === 'asc' ? '↑' : '↓';
 
-    const table = $('table');
-    const emptyState = $('emptyState');
-    const pagination = $('pagination');
-
+    const table = $('table'), empty = $('emptyState'), pag = $('pagination');
     if (records.length === 0) {
-      table.style.display = 'none';
-      emptyState.style.display = 'block';
-      pagination.style.display = 'none';
+      table.style.display = 'none'; empty.style.display = 'block'; pag.style.display = 'none';
+      $('emptyBig').textContent = 'Nenhum registro ainda';
+      $('emptySmall').textContent = 'Cadastre a primeira coleta clicando em "Novo registro". Tudo fica salvo automaticamente e disponível para toda a equipe.';
       return;
     }
     if (sorted.length === 0) {
-      table.style.display = 'none';
-      emptyState.style.display = 'block';
-      $('emptyState .big') && null;
-      emptyState.querySelector('.big').textContent = 'Nenhum registro encontrado';
-      emptyState.querySelector('.small').textContent = 'Ajuste os filtros ou a busca para ver outros registros.';
-      pagination.style.display = 'none';
+      table.style.display = 'none'; empty.style.display = 'block'; pag.style.display = 'none';
+      $('emptyBig').textContent = 'Nenhum registro encontrado';
+      $('emptySmall').textContent = 'Ajuste os filtros ou a busca para ver outros registros.';
       return;
     }
-    table.style.display = 'table';
-    emptyState.style.display = 'none';
-    pagination.style.display = sorted.length > PAGE_SIZE ? 'flex' : 'none';
+    table.style.display = ''; empty.style.display = 'none';
+    pag.style.display = sorted.length > PAGE_SIZE ? 'flex' : 'none';
 
-    $('tbody').innerHTML = pageItems.map(r => {
-      const saldo = computeSaldo(r);
-      const status = computeStatus(r);
-      const dias = diasPendentes(r);
-      const diasHtml = dias === null ? '<span class="dias-tag">—</span>' : `<span class="dias-tag${dias > 15 ? ' alert' : ''}">${dias}d</span>`;
+    $('tbody').innerHTML = items.map(r => {
+      const c = col(r), e = ent(r);
+      const saldo = saldoDe(r), dev = qtdDevolvida(r), status = statusDe(r), dias = diasPendentes(r);
+      const diasHtml = dias === null ? '<span class="dias-tag">—</span>' : `<span class="dias-tag${dias > ALERTA_DIAS ? ' alert' : ''}">${dias}d</span>`;
+      const placaPill = (p) => p ? `<span class="placa-pill">${esc(p)}</span>` : '';
+      const entSub = e ? esc([e.motorista, e.placa].filter(Boolean).join(' · ')) : '';
+      const sub = statusSub(r);
       return `
         <tr>
-          <td class="dim">${fmtDate(r.data)}</td>
-          <td>${escapeHtml(r.motorista)}</td>
-          <td>${r.placa ? `<span class="placa-pill">${escapeHtml(r.placa)}</span>` : '—'}</td>
-          <td>${escapeHtml(r.cliente)}</td>
-          <td class="dim">${escapeHtml(r.recebedorEntrega) || '—'}</td>
-          <td class="num">${r.qtdDeixados ?? 0}</td>
-          <td class="dim">${fmtDate(r.dataDevolucao)}</td>
-          <td class="num" style="font-weight:700;color:var(--gold)">${saldo}</td>
-          <td>${diasHtml}</td>
-          <td>${statusBadgeHtml(status)}</td>
-          <td class="dim">${fmtDate(r.dataRecebimentoBase)}</td>
-          <td class="dim">${escapeHtml(r.recebedorBase) || '—'}</td>
-          <td class="obs">${escapeHtml(r.obs) || '—'}</td>
-          <td>
+          <td data-label="Coleta">${stack(fmtDate(c.data), esc(c.horario))}</td>
+          <td data-label="Cliente / Remetente">${stack(esc(c.cliente) || '—', esc(c.endereco))}</td>
+          <td data-label="Motorista / Placa">${stack(esc(c.motorista) || '—', placaPill(c.placa))}</td>
+          <td data-label="Pallets" class="num">${qtdColetada(r)}</td>
+          <td data-label="Entrega">${e ? stack(fmtDate(e.data), esc(e.horario)) : '<span class="dias-tag">Aguardando</span>'}</td>
+          <td data-label="Destino">${e ? stack(esc(e.destino) || '—', entSub) : '<span class="dias-tag">—</span>'}</td>
+          <td data-label="Situação">${stack(badgeHtml(status), esc(sub))}</td>
+          <td data-label="Saldo"><div class="stack"><span class="main gold">${saldo}</span>${dev > 0 ? `<span class="sub">devolvido ${dev}</span>` : ''}</div></td>
+          <td data-label="Dias">${diasHtml}</td>
+          <td data-label="Obs." class="obs">${esc(r.obs) || '—'}</td>
+          <td class="actions">
             <div class="row-actions">
-              ${saldo > 0 ? `<button class="btn btn-gold btn-sm" data-dev="${r.id}">Devolução</button>` : ''}
+              ${!e ? `<button class="btn btn-gold btn-sm" data-ent="${r.id}">Registrar entrega</button>` : ''}
+              ${e && saldo > 0 ? `<button class="btn btn-gold btn-sm" data-dev="${r.id}">Registrar devolução</button>` : ''}
               <button class="btn btn-ghost btn-sm" data-edit="${r.id}">Editar</button>
               <button class="btn btn-danger btn-sm" data-del="${r.id}">Excluir</button>
             </div>
           </td>
-        </tr>
-      `;
+        </tr>`;
     }).join('');
 
-    $('tbody').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openDrawer(b.dataset.edit));
+    $('tbody').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openDrawer(b.dataset.edit, false));
+    $('tbody').querySelectorAll('[data-ent]').forEach(b => b.onclick = () => openDrawer(b.dataset.ent, true));
     $('tbody').querySelectorAll('[data-del]').forEach(b => b.onclick = () => removeRecord(b.dataset.del));
     $('tbody').querySelectorAll('[data-dev]').forEach(b => b.onclick = () => openDevolucaoModal(b.dataset.dev));
 
@@ -773,305 +849,319 @@ const operacoesCol = collection(db, 'operacoes');
     $('btnNextPage').disabled = page >= totalPages;
   }
 
-  /* ---------- render: dashboard ---------- */
+  /* ---------- dashboard ---------- */
   function renderDashboard(){
-    const totalDeixados = records.reduce((s,r)=> s + (Number(r.qtdDeixados)||0), 0);
-    const totalDevolvidos = records.reduce((s,r)=> s + computeQtdDevolvida(r), 0);
-    const saldoPendente = records.reduce((s,r)=> s + computeSaldo(r), 0);
-    const clientesPendentes = new Set(records.filter(r=>computeSaldo(r)>0).map(r=>r.cliente)).size;
-    const devolucoesPendentes = records.filter(r=>{ const s=computeStatus(r); return s==='pendente'||s==='parcial'; }).length;
-    const aguardandoBase = records.filter(r=>computeStatus(r)==='devolvido').length;
-    const recebidosBase = records.filter(r=>computeStatus(r)==='recebido_base').reduce((s,r)=> s + computeQtdDevolvida(r), 0);
-
-    $('stTotalDeixados').textContent = totalDeixados;
-    $('stTotalDevolvidos').textContent = totalDevolvidos;
-    $('stSaldoPendente').textContent = saldoPendente;
-    $('stClientesPendentes').textContent = clientesPendentes;
-    $('stDevolucoesPendentes').textContent = devolucoesPendentes;
-    $('stAguardandoBase').textContent = aguardandoBase;
-    $('stRecebidosBase').textContent = recebidosBase;
-
+    const sum = (fn) => records.reduce((s, r) => s + fn(r), 0);
+    $('stColetado').textContent = sum(qtdColetada);
+    $('stDevolvido').textContent = sum(qtdDevolvida);
+    $('stSaldo').textContent = sum(saldoDe);
+    $('stPortoex').textContent = sum(r => localPaletes(r) === 'portoex' ? saldoDe(r) : 0);
+    $('stDestino').textContent = sum(r => localPaletes(r) === 'destino' ? saldoDe(r) : 0);
+    $('stClientes').textContent = new Set(records.filter(r => saldoDe(r) > 0).map(r => col(r).cliente || 'Sem cliente')).size;
     renderAlerts();
     renderRanking();
-    renderCharts();
+    if ($('view-dashboard').classList.contains('active')) renderCharts();
   }
 
   function renderAlerts(){
-    const clientesPendentesList = uniqueSorted(records.filter(r=>computeSaldo(r)>0).map(r=>r.cliente));
-    const muitosDias = records.filter(r=>{ const d = diasPendentes(r); return d !== null && d > 15; });
-    const parciais = records.filter(r=> computeStatus(r) === 'parcial');
-    const semDevolucao = records.filter(r=> computeStatus(r) === 'pendente');
-    const aguardandoBase = records.filter(r=> computeStatus(r) === 'devolvido');
-
-    const items = [
-      { label: 'Clientes com pallets pendentes', count: clientesPendentesList.length, action: () => { clearFiltersKeepPendentes(); switchView('controle'); } },
-      { label: 'Pallets pendentes há mais de 15 dias', count: muitosDias.length, action: () => { clearFiltersKeepPendentes(); switchView('controle'); } },
-      { label: 'Devoluções parciais', count: parciais.length, action: () => { setStatusFilter('parcial'); switchView('controle'); } },
-      { label: 'Registros sem data de devolução', count: semDevolucao.length, action: () => { setStatusFilter('pendente'); switchView('controle'); } },
-      { label: 'Devolvidos aguardando recebimento na base', count: aguardandoBase.length, action: () => { setStatusFilter('devolvido'); switchView('controle'); } },
-    ];
-    const anyIssue = items.some(i => i.count > 0);
-    if (!anyIssue && records.length > 0) {
-      $('alertsGrid').innerHTML = '<div class="alerts-empty">Nenhuma pendência crítica no momento.</div>';
-      return;
-    }
     if (records.length === 0) {
       $('alertsGrid').innerHTML = '<div class="alerts-empty">Sem registros ainda — as pendências aparecem aqui automaticamente.</div>';
       return;
     }
-    $('alertsGrid').innerHTML = items.filter(i=>i.count>0).map((i, idx) => `
-      <div class="alert-card warn" data-alert-idx="${idx}">
-        <div class="txt">${i.label}</div>
-        <div class="cnt">${i.count}</div>
-      </div>
-    `).join('');
-    $('alertsGrid').querySelectorAll('[data-alert-idx]').forEach(el => {
-      const i = items.filter(x=>x.count>0)[Number(el.dataset.alertIdx)];
-      el.onclick = i.action;
+    const count = (fn) => records.filter(fn).length;
+    const items = [
+      { label: 'Coletas aguardando entrega', n: count(r => statusDe(r) === 'aguardando_entrega'), go: () => setStatusFilter('aguardando_entrega') },
+      { label: 'Pallets que ficaram nos destinos (cliente do cliente)', n: count(r => statusDe(r) === 'no_destino'), go: () => setStatusFilter('no_destino') },
+      { label: `Pallets pendentes há mais de ${ALERTA_DIAS} dias`, n: count(r => (diasPendentes(r) ?? 0) > ALERTA_DIAS), go: () => setPendentesFilter() },
+      { label: 'Devoluções parciais', n: count(r => statusDe(r) === 'parcial'), go: () => setStatusFilter('parcial') },
+    ].filter(i => i.n > 0);
+
+    if (items.length === 0) {
+      $('alertsGrid').innerHTML = '<div class="alerts-empty">Nenhuma pendência de atenção no momento.</div>';
+      return;
+    }
+    $('alertsGrid').innerHTML = items.map((i, idx) => `
+      <div class="alert-card" data-alert="${idx}">
+        <div class="txt">${esc(i.label)}</div>
+        <div class="cnt">${i.n}</div>
+      </div>`).join('');
+    $('alertsGrid').querySelectorAll('[data-alert]').forEach(el => {
+      el.onclick = () => { items[Number(el.dataset.alert)].go(); switchView('controle'); };
     });
   }
 
-  function setStatusFilter(status){
-    filters = { dataIni:'', dataFim:'', cliente:'', motorista:'', placa:'', status, somentePendentes:false, somenteDevolvidos:false };
-    syncFilterUI();
-  }
-  function clearFiltersKeepPendentes(){
-    filters = { dataIni:'', dataFim:'', cliente:'', motorista:'', placa:'', status:'', somentePendentes:true, somenteDevolvidos:false };
-    syncFilterUI();
-  }
-  function syncFilterUI(){
-    $('fDataIni').value = filters.dataIni;
-    $('fDataFim').value = filters.dataFim;
-    $('fCliente').value = filters.cliente;
-    $('fMotorista').value = filters.motorista;
-    $('fPlaca').value = filters.placa;
-    $('fStatus').value = filters.status;
-    $('chipPendentes').classList.toggle('active', filters.somentePendentes);
-    $('chipDevolvidos').classList.toggle('active', filters.somenteDevolvidos);
-    page = 1;
+  function aggregateByCliente(){
+    const by = {};
+    records.forEach(r => {
+      const saldo = saldoDe(r);
+      if (saldo <= 0) return;
+      const nome = col(r).cliente || 'Sem cliente';
+      if (!by[nome]) by[nome] = { saldo: 0, portoex: 0, destino: 0, dias: 0 };
+      by[nome].saldo += saldo;
+      by[nome][localPaletes(r)] += saldo;
+      by[nome].dias = Math.max(by[nome].dias, diasPendentes(r) || 0);
+    });
+    return Object.entries(by).sort((a,b) => b[1].saldo - a[1].saldo);
   }
 
   function renderRanking(){
-    const byCliente = {};
-    records.forEach(r => {
-      const saldo = computeSaldo(r);
-      if (saldo <= 0) return;
-      const c = r.cliente || 'Sem cliente';
-      if (!byCliente[c]) byCliente[c] = { saldo: 0, ultima: '', dias: 0 };
-      byCliente[c].saldo += saldo;
-      const mov = r.dataDevolucao && r.dataDevolucao > r.data ? r.dataDevolucao : r.data;
-      if (mov > byCliente[c].ultima) byCliente[c].ultima = mov;
-      const d = diasPendentes(r) || 0;
-      if (d > byCliente[c].dias) byCliente[c].dias = d;
-    });
-    const rows = Object.entries(byCliente).sort((a,b)=> b[1].saldo - a[1].saldo).slice(0, 8);
-    if (rows.length === 0) {
-      $('rankBody').innerHTML = '';
-      $('rankEmpty').style.display = 'block';
+    const rows = aggregateByCliente().slice(0, 10);
+    $('rankEmpty').style.display = rows.length ? 'none' : 'block';
+    $('rankBody').innerHTML = rows.map(([nome, v]) => `
+      <tr>
+        <td>${esc(nome)}</td>
+        <td class="num gold">${v.saldo}</td>
+        <td class="num">${v.portoex}</td>
+        <td class="num${v.destino > 0 ? ' red' : ''}">${v.destino}</td>
+        <td class="num" style="color:var(--text-dim)">${v.dias}d</td>
+      </tr>`).join('');
+  }
+
+  function drawChart(key, wrapId, emptyMsg, config){
+    if (charts[key]) { charts[key].destroy(); charts[key] = null; }
+    const wrap = $(wrapId);
+    if (!config || typeof Chart === 'undefined') {
+      wrap.innerHTML = `<div class="chart-empty">${emptyMsg}</div>`;
       return;
     }
-    $('rankEmpty').style.display = 'none';
-    $('rankBody').innerHTML = rows.map(([cliente, v]) => `
-      <tr>
-        <td>${escapeHtml(cliente)}</td>
-        <td class="num">${v.saldo}</td>
-        <td class="dim">${fmtDate(v.ultima)}</td>
-        <td class="dim">${v.dias}d</td>
-      </tr>
-    `).join('');
+    wrap.innerHTML = `<canvas id="canvas-${key}"></canvas>`;
+    charts[key] = new Chart($(`canvas-${key}`), config);
   }
 
   function renderCharts(){
-    if (typeof Chart === 'undefined') return;
     const hasData = records.length > 0;
+    const axisText = '#a0a0a5', grid = '#2a2a2e';
 
-    // --- Evolução: deixados x devolvidos por data ---
-    const wrapEvo = $('wrapEvolucao');
-    if (!hasData) {
-      wrapEvo.innerHTML = '<div class="chart-empty">Sem dados para exibir ainda.</div>';
-    } else {
-      if (!$('chartEvolucao')) wrapEvo.innerHTML = '<canvas id="chartEvolucao"></canvas>';
-      const byDateDeixados = {};
-      const byDateDevolvidos = {};
+    // Evolução: coletados x devolvidos (acumulado por data)
+    let evoConfig = null;
+    if (hasData) {
+      const byColeta = {}, byDev = {};
       records.forEach(r => {
-        if (r.data) byDateDeixados[r.data] = (byDateDeixados[r.data]||0) + (Number(r.qtdDeixados)||0);
-        (r.devolucoes||[]).forEach(d => {
-          if (d.data) byDateDevolvidos[d.data] = (byDateDevolvidos[d.data]||0) + (Number(d.qtd)||0);
-        });
+        const d = col(r).data;
+        if (d) byColeta[d] = (byColeta[d] || 0) + qtdColetada(r);
+        (r.devolucoes || []).forEach(x => { if (x.data) byDev[x.data] = (byDev[x.data] || 0) + (Number(x.qtd) || 0); });
       });
-      const allDates = uniqueSorted([...Object.keys(byDateDeixados), ...Object.keys(byDateDevolvidos)]).sort();
-      let accD = 0, accV = 0;
-      const dataDeixados = [], dataDevolvidos = [];
-      allDates.forEach(d => {
-        accD += byDateDeixados[d] || 0;
-        accV += byDateDevolvidos[d] || 0;
-        dataDeixados.push(accD);
-        dataDevolvidos.push(accV);
-      });
-      const ctx = $('chartEvolucao');
-      if (chartEvolucao) chartEvolucao.destroy();
-      chartEvolucao = new Chart(ctx, {
+      const dates = uniqueSorted([...Object.keys(byColeta), ...Object.keys(byDev)]);
+      let accC = 0, accD = 0;
+      const serieC = [], serieD = [];
+      dates.forEach(d => { accC += byColeta[d] || 0; accD += byDev[d] || 0; serieC.push(accC); serieD.push(accD); });
+      evoConfig = {
         type: 'line',
         data: {
-          labels: allDates.map(fmtDate),
+          labels: dates.map(fmtDate),
           datasets: [
-            { label: 'Deixados (acum.)', data: dataDeixados, borderColor: '#d4af37', backgroundColor: 'rgba(212,175,55,0.12)', tension: 0.3, fill: true, pointRadius: 2 },
-            { label: 'Devolvidos (acum.)', data: dataDevolvidos, borderColor: '#9a9a9f', backgroundColor: 'rgba(154,154,159,0.08)', tension: 0.3, fill: true, pointRadius: 2 }
+            { label: 'Coletados (acum.)', data: serieC, borderColor: '#d4af37', backgroundColor: 'rgba(212,175,55,0.12)', tension: 0.3, fill: true, pointRadius: 2 },
+            { label: 'Devolvidos (acum.)', data: serieD, borderColor: '#f5f5f2', backgroundColor: 'rgba(245,245,242,0.06)', tension: 0.3, fill: true, pointRadius: 2 }
           ]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { position: 'bottom', labels: { color: '#f5f5f2', font: { size: 11.5 }, usePointStyle: true, pointStyle: 'circle' } } },
           scales: {
-            x: { ticks: { color: '#9a9a9f', font: { size: 10.5 }, maxRotation: 0, autoSkip: true }, grid: { color: '#2a2a2e' } },
-            y: { beginAtZero: true, ticks: { color: '#9a9a9f', precision: 0 }, grid: { color: '#2a2a2e' } }
+            x: { ticks: { color: axisText, font: { size: 10.5 }, maxRotation: 0, autoSkip: true }, grid: { color: grid } },
+            y: { beginAtZero: true, ticks: { color: axisText, precision: 0 }, grid: { color: grid } }
           }
         }
-      });
+      };
     }
+    drawChart('evolucao', 'wrapEvolucao', 'Sem dados para exibir ainda.', evoConfig);
 
-    // --- Status donut ---
-    const wrapStatus = $('wrapStatus');
-    if (!hasData) {
-      wrapStatus.innerHTML = '<div class="chart-empty">Sem dados para exibir ainda.</div>';
-    } else {
-      if (!$('chartStatus')) wrapStatus.innerHTML = '<canvas id="chartStatus"></canvas>';
-      const counts = { pendente:0, parcial:0, devolvido:0, recebido_base:0 };
-      records.forEach(r => counts[computeStatus(r)]++);
-      const ctx = $('chartStatus');
-      if (chartStatus) chartStatus.destroy();
-      chartStatus = new Chart(ctx, {
+    // Situação: onde estão os pallets (em quantidade)
+    let sitConfig = null;
+    if (hasData) {
+      const portoex = records.reduce((s, r) => s + (localPaletes(r) === 'portoex' ? saldoDe(r) : 0), 0);
+      const destino = records.reduce((s, r) => s + (localPaletes(r) === 'destino' ? saldoDe(r) : 0), 0);
+      const devolvido = records.reduce((s, r) => s + qtdDevolvida(r), 0);
+      sitConfig = {
         type: 'doughnut',
         data: {
-          labels: ['Pendente','Parcial','Devolvido','Recebido na base'],
-          datasets: [{
-            data: [counts.pendente, counts.parcial, counts.devolvido, counts.recebido_base],
-            backgroundColor: ['#e2585d', '#d4af37', '#9a9a9f', '#ffffff'],
-            borderColor: '#151517', borderWidth: 3
-          }]
+          labels: ['Com a PortoEX', 'Nos destinos', 'Devolvidos'],
+          datasets: [{ data: [portoex, destino, devolvido], backgroundColor: ['#d4af37', '#e2585d', '#f5f5f2'], borderColor: '#151517', borderWidth: 3 }]
         },
         options: {
-          responsive: true, maintainAspectRatio: false, cutout: '68%',
+          responsive: true, maintainAspectRatio: false, cutout: '66%',
           plugins: { legend: { position: 'bottom', labels: { color: '#f5f5f2', font: { size: 11 }, padding: 10, usePointStyle: true, pointStyle: 'circle' } } }
         }
-      });
+      };
     }
+    drawChart('situacao', 'wrapSituacao', 'Sem dados para exibir ainda.', sitConfig);
 
-    // --- Pallets por cliente (saldo pendente) ---
-    const wrapCliente = $('wrapCliente');
-    const byCliente = {};
-    records.forEach(r => {
-      const saldo = computeSaldo(r);
-      if (saldo <= 0) return;
-      byCliente[r.cliente || 'Sem cliente'] = (byCliente[r.cliente || 'Sem cliente'] || 0) + saldo;
-    });
-    const entries = Object.entries(byCliente).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    if (!hasData || entries.length === 0) {
-      wrapCliente.innerHTML = '<div class="chart-empty">Sem saldo pendente para exibir.</div>';
-    } else {
-      if (!$('chartCliente')) wrapCliente.innerHTML = '<canvas id="chartCliente"></canvas>';
-      const ctx = $('chartCliente');
-      if (chartCliente) chartCliente.destroy();
-      chartCliente = new Chart(ctx, {
+    // Saldo por cliente de origem (empilhado: com a PortoEX x nos destinos)
+    const agg = aggregateByCliente().slice(0, 8);
+    let cliConfig = null;
+    if (agg.length > 0) {
+      cliConfig = {
         type: 'bar',
         data: {
-          labels: entries.map(e=>e[0]),
-          datasets: [{ data: entries.map(e=>e[1]), backgroundColor: '#d4af37', borderRadius: 4, maxBarThickness: 30 }]
+          labels: agg.map(([n]) => n),
+          datasets: [
+            { label: 'Com a PortoEX', data: agg.map(([,v]) => v.portoex), backgroundColor: '#d4af37', borderRadius: 3, maxBarThickness: 28 },
+            { label: 'Nos destinos', data: agg.map(([,v]) => v.destino), backgroundColor: '#e2585d', borderRadius: 3, maxBarThickness: 28 }
+          ]
         },
         options: {
           responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-          plugins: { legend: { display: false } },
+          plugins: { legend: { position: 'bottom', labels: { color: '#f5f5f2', font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' } } },
           scales: {
-            x: { beginAtZero: true, ticks: { color: '#9a9a9f', precision: 0 }, grid: { color: '#2a2a2e' } },
-            y: { ticks: { color: '#f5f5f2', font: { size: 11.5 } }, grid: { display: false } }
+            x: { stacked: true, beginAtZero: true, ticks: { color: axisText, precision: 0 }, grid: { color: grid } },
+            y: { stacked: true, ticks: { color: '#f5f5f2', font: { size: 11.5 } }, grid: { display: false } }
           }
         }
-      });
+      };
     }
+    drawChart('cliente', 'wrapCliente', 'Sem saldo pendente para exibir.', cliConfig);
   }
 
-  /* ---------- main render dispatcher ---------- */
   function renderAll(){
-    populateFilterOptions();
+    populateOptions();
     renderTable();
     renderDashboard();
   }
 
-  /* ---------- view switching ---------- */
   function switchView(view){
     document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
-    if (view === 'controle') { renderTable(); }
-    if (view === 'dashboard') { requestAnimationFrame(renderCharts); }
+    if (view === 'controle') renderTable();
+    if (view === 'dashboard') requestAnimationFrame(renderCharts);
+    window.scrollTo(0, 0);
   }
 
-  /* ---------- drawer: novo/editar ---------- */
-  function openDrawer(id){
+  /* ---------- formulário (novo / editar / registrar entrega) ---------- */
+  function renderSeg(){
+    $('segFicaram').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.v === ficaram));
+  }
+  function renderHist(){
+    $('histBox').style.display = stagedDevolucoes.length ? 'block' : 'none';
+    $('histList').innerHTML = stagedDevolucoes.map((d, i) => `
+      <div class="hist-item">
+        <div>
+          <div class="t">${Number(d.qtd) || 0} pallet(s) · ${fmtDate(d.data)}</div>
+          <div class="s">Recebido por: ${esc(d.recebidoPor) || '—'}${d.obs ? '<br>' + esc(d.obs) : ''}</div>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm" data-rmdev="${i}">Remover</button>
+      </div>`).join('');
+    $('histList').querySelectorAll('[data-rmdev]').forEach(b => b.onclick = () => {
+      if (!confirm('Remover esta devolução? O saldo será recalculado.')) return;
+      stagedDevolucoes.splice(Number(b.dataset.rmdev), 1);
+      renderHist(); refreshComputed();
+    });
+  }
+  function entregaPreenchida(){
+    return !!($('feData').value || $('feHorario').value || $('feDestino').value.trim() || ficaram);
+  }
+  function refreshComputed(){
+    const preview = {
+      coleta: { qtdPaletes: Number($('fcQtd').value) || 0 },
+      entrega: ($('feData').value && $('feDestino').value.trim() && ficaram) ? { paletesFicaram: ficaram } : null,
+      devolucoes: stagedDevolucoes
+    };
+    $('calcSaldo').textContent = saldoDe(preview);
+    $('calcStatusBadge').innerHTML = badgeHtml(statusDe(preview));
+  }
+
+  function openDrawer(id, focusEntrega){
     editingId = id || null;
-    const r = id ? records.find(x=>x.id===id) : null;
-    $('drawerTitle').textContent = id ? 'Editar registro' : 'Novo registro';
-    $('fData').value = r ? (r.data||'') : todayISO();
-    $('fPlaca_i').value = r ? (r.placa||'') : '';
-    $('fMotorista_i').value = r ? (r.motorista||'') : '';
-    $('fCliente_i').value = r ? (r.cliente||'') : '';
-    $('fRecebedorEntrega').value = r ? (r.recebedorEntrega||'') : '';
-    $('fQtdDeixados').value = r ? (r.qtdDeixados ?? '') : '';
-    $('fDataDevolucao').value = r ? (r.dataDevolucao||'') : '';
-    $('fDataRecebimentoBase').value = r ? (r.dataRecebimentoBase||'') : '';
-    $('fRecebedorBase').value = r ? (r.recebedorBase||'') : '';
-    $('fObs').value = r ? (r.obs||'') : '';
-    updateComputedBox(r);
+    const r = id ? records.find(x => x.id === id) : null;
+    const c = r ? col(r) : {};
+    const e = r ? ent(r) : null;
+    $('drawerTitle').textContent = !r ? 'Novo registro' : (focusEntrega && !e ? 'Registrar entrega' : 'Editar registro');
+
+    $('fcData').value = c.data || todayISO();
+    $('fcHorario').value = c.horario || '';
+    $('fcCliente').value = c.cliente || '';
+    $('fcEndereco').value = c.endereco || '';
+    $('fcMotorista').value = c.motorista || '';
+    $('fcPlaca').value = c.placa || '';
+    $('fcQtd').value = c.qtdPaletes ?? '';
+
+    if (e) {
+      $('feData').value = e.data || '';
+      $('feHorario').value = e.horario || '';
+      $('feDestino').value = e.destino || '';
+      $('feMotorista').value = e.motorista || '';
+      $('fePlaca').value = e.placa || '';
+      ficaram = e.paletesFicaram || null;
+    } else if (r && focusEntrega) {
+      // preenchimento automático: data de hoje e mesmo motorista/placa da coleta
+      $('feData').value = todayISO();
+      $('feHorario').value = '';
+      $('feDestino').value = '';
+      $('feMotorista').value = c.motorista || '';
+      $('fePlaca').value = c.placa || '';
+      ficaram = null;
+    } else {
+      ['feData','feHorario','feDestino','feMotorista','fePlaca'].forEach(k => $(k).value = '');
+      ficaram = null;
+    }
+
+    $('fObs').value = r ? (r.obs || '') : '';
+    stagedDevolucoes = r ? (r.devolucoes || []).map(d => ({ ...d })) : [];
+    renderSeg(); renderHist(); refreshComputed();
+
     $('overlay').classList.add('show');
     $('drawer').classList.add('show');
-    setTimeout(()=> $('fCliente_i').focus(), 150);
-  }
-  function updateComputedBox(r){
-    if (!r) {
-      $('calcSaldo').textContent = $('fQtdDeixados').value || 0;
-      $('calcStatusBadge').innerHTML = statusBadgeHtml('pendente');
-      return;
-    }
-    $('calcSaldo').textContent = computeSaldo(r);
-    $('calcStatusBadge').innerHTML = statusBadgeHtml(computeStatus(r));
+    setTimeout(() => {
+      if (focusEntrega && r && !e) {
+        $('secEntrega').scrollIntoView({ block: 'start' });
+        $('feDestino').focus();
+      } else if (!r) {
+        $('fcCliente').focus();
+      }
+    }, 200);
   }
   function closeDrawer(){
     $('overlay').classList.remove('show');
     $('drawer').classList.remove('show');
     editingId = null;
   }
-  $('fQtdDeixados') && null;
 
   async function saveRecord(){
-    const qtd = $('fQtdDeixados').value === '' ? null : Number($('fQtdDeixados').value);
-    const data = {
-      data: $('fData').value,
-      placa: $('fPlaca_i').value.trim().toUpperCase(),
-      motorista: $('fMotorista_i').value.trim(),
-      cliente: $('fCliente_i').value.trim(),
-      recebedorEntrega: $('fRecebedorEntrega').value.trim(),
-      qtdDeixados: qtd,
-      dataRecebimentoBase: $('fDataRecebimentoBase').value || null,
-      recebedorBase: $('fRecebedorBase').value.trim(),
-      obs: $('fObs').value.trim(),
-      updatedAt: Date.now()
+    const coleta = {
+      data: $('fcData').value,
+      horario: $('fcHorario').value || '',
+      cliente: $('fcCliente').value.trim(),
+      endereco: $('fcEndereco').value.trim(),
+      motorista: $('fcMotorista').value.trim(),
+      placa: $('fcPlaca').value.trim().toUpperCase(),
+      qtdPaletes: Number($('fcQtd').value)
     };
-    if (!data.cliente || !data.motorista) { toast('Preencha ao menos motorista e cliente.'); return; }
-    if (data.qtdDeixados === null || isNaN(data.qtdDeixados) || data.qtdDeixados < 0) { toast('Informe uma quantidade de pallets válida (0 ou mais).'); return; }
-    if (!data.data) { toast('Informe a data da operação.'); return; }
+    if (!coleta.data) return toast('Informe a data da coleta.');
+    if (!coleta.cliente) return toast('Informe o cliente / remetente da coleta.');
+    if (!coleta.motorista) return toast('Informe o motorista da coleta.');
+    if (!coleta.placa) return toast('Informe a placa do veículo da coleta.');
+    if (!Number.isInteger(coleta.qtdPaletes) || coleta.qtdPaletes < 1) return toast('Informe a quantidade de pallets coletados (1 ou mais).');
 
+    const jaDevolvido = stagedDevolucoes.reduce((s, d) => s + (Number(d.qtd) || 0), 0);
+    if (coleta.qtdPaletes < jaDevolvido) return toast(`A quantidade coletada não pode ser menor que o já devolvido (${jaDevolvido}).`);
+
+    let entrega = null;
+    if (entregaPreenchida()) {
+      entrega = {
+        data: $('feData').value,
+        horario: $('feHorario').value || '',
+        destino: $('feDestino').value.trim(),
+        motorista: $('feMotorista').value.trim(),
+        placa: $('fePlaca').value.trim().toUpperCase(),
+        paletesFicaram: ficaram
+      };
+      if (!entrega.data) return toast('Informe a data da entrega.');
+      if (!entrega.destino) return toast('Informe o cliente / armazém / redespacho da entrega.');
+      if (!entrega.paletesFicaram) return toast('Informe se os pallets ficaram no destino ou voltaram com a PortoEX.');
+      if (entrega.data < coleta.data) return toast('A data da entrega não pode ser anterior à data da coleta.');
+    }
+
+    const data = { v: 2, coleta, entrega, devolucoes: stagedDevolucoes, obs: $('fObs').value.trim(), updatedAt: Date.now() };
     try {
       if (editingId) {
         await updateDoc(doc(db, 'operacoes', editingId), data);
       } else {
-        data.devolucoes = [];
-        data.dataDevolucao = null;
         data.createdAt = Date.now();
         await addDoc(operacoesCol, data);
       }
       closeDrawer();
       toast('Registro salvo com sucesso.');
-    } catch (e) {
-      toast('Não foi possível salvar. Tente novamente.');
+    } catch (err) {
+      toast('Não foi possível salvar. Verifique a conexão e tente novamente.');
     }
   }
 
@@ -1080,75 +1170,82 @@ const operacoesCol = collection(db, 'operacoes');
     try {
       await deleteDoc(doc(db, 'operacoes', id));
       toast('Registro excluído.');
-    } catch (e) {
-      toast('Não foi possível excluir.');
+    } catch (err) {
+      toast('Não foi possível excluir. Tente novamente.');
     }
   }
 
-  /* ---------- devolução modal ---------- */
+  /* ---------- devolução ao cliente de origem ---------- */
   function openDevolucaoModal(id){
-    const r = records.find(x=>x.id===id);
+    const r = records.find(x => x.id === id);
     if (!r) return;
-    devolucaoTargetId = id;
-    const saldo = computeSaldo(r);
-    $('devCliente').textContent = r.cliente || '—';
-    $('devData').textContent = fmtDate(r.data);
-    $('devDeixados').textContent = r.qtdDeixados ?? 0;
-    $('devJaDevolvido').textContent = computeQtdDevolvida(r);
-    $('devSaldoAtual').textContent = saldo;
-    $('devQtd').value = '';
+    devTargetId = id;
+    const saldo = saldoDe(r);
+    $('devCliente').textContent = col(r).cliente || '—';
+    $('devColetaData').textContent = fmtDate(col(r).data);
+    $('devColetados').textContent = qtdColetada(r);
+    $('devJa').textContent = qtdDevolvida(r);
+    $('devSaldo').textContent = saldo;
+    $('devOnde').textContent = localPaletes(r) === 'destino' ? 'No destino' : 'Com a PortoEX';
+    $('devQtd').value = saldo;           // preenchimento automático: devolução total
     $('devQtd').max = saldo;
-    $('devData_i').value = todayISO();
+    $('devData').value = todayISO();
+    $('devRecebido').value = '';
     $('devObs').value = '';
     $('devOverlay').classList.add('show');
-    setTimeout(()=> $('devQtd').focus(), 100);
+    setTimeout(() => $('devQtd').select(), 100);
   }
   function closeDevolucaoModal(){
     $('devOverlay').classList.remove('show');
-    devolucaoTargetId = null;
+    devTargetId = null;
   }
   async function saveDevolucao(){
-    const r = records.find(x=>x.id===devolucaoTargetId);
+    const r = records.find(x => x.id === devTargetId);
     if (!r) return;
-    const saldo = computeSaldo(r);
+    const saldo = saldoDe(r);
     const qtd = Number($('devQtd').value);
-    const dataDev = $('devData_i').value;
-    if (!qtd || qtd <= 0) { toast('Informe uma quantidade válida para a devolução.'); return; }
-    if (qtd > saldo) { toast(`A quantidade devolvida não pode ser maior que o saldo pendente (${saldo}).`); return; }
-    if (!dataDev) { toast('Informe a data da devolução.'); return; }
+    const data = $('devData').value;
+    const recebidoPor = $('devRecebido').value.trim();
+    if (!Number.isInteger(qtd) || qtd < 1) return toast('Informe uma quantidade válida para a devolução (1 ou mais).');
+    if (qtd > saldo) return toast(`A quantidade devolvida não pode ser maior que o saldo pendente (${saldo}).`);
+    if (!data) return toast('Informe a data da devolução.');
+    if (data < (col(r).data || '')) return toast('A data da devolução não pode ser anterior à data da coleta.');
+    if (!recebidoPor) return toast('Informe quem recebeu a devolução.');
 
-    const novaDevolucao = { qtd, data: dataDev, obs: $('devObs').value.trim(), at: Date.now() };
-    const devolucoes = [...(r.devolucoes||[]), novaDevolucao];
-
+    const devolucoes = [...(r.devolucoes || []), { qtd, data, recebidoPor, obs: $('devObs').value.trim(), at: Date.now() }];
     try {
-      await updateDoc(doc(db, 'operacoes', r.id), {
-        devolucoes,
-        dataDevolucao: dataDev,
-        updatedAt: Date.now()
-      });
+      await updateDoc(doc(db, 'operacoes', r.id), { devolucoes, updatedAt: Date.now() });
       closeDevolucaoModal();
       toast('Devolução registrada. Saldo atualizado.');
-    } catch (e) {
-      toast('Não foi possível registrar a devolução.');
+    } catch (err) {
+      toast('Não foi possível registrar a devolução. Tente novamente.');
     }
   }
 
-  /* ---------- export CSV ---------- */
-  async function exportCSV(){
-    const filtered = sortRecords(getFilteredRecords(true));
-    if (filtered.length === 0) { toast('Nenhum registro para exportar com os filtros atuais.'); return; }
-    const headers = ['Data','Motorista','Placa','Cliente','Recebedor na entrega','Pallets deixados','Data de devolução','Saldo pendente','Dias pendentes','Status','Data de recebimento na base','Recebedor na base','Observações'];
-    const rows = filtered.map(r => [
-      fmtDate(r.data), r.motorista||'', r.placa||'', r.cliente||'', r.recebedorEntrega||'',
-      r.qtdDeixados ?? 0, fmtDate(r.dataDevolucao), computeSaldo(r), diasPendentes(r) ?? '',
-      statusLabel(computeStatus(r)), fmtDate(r.dataRecebimentoBase), r.recebedorBase||'', (r.obs||'').replace(/\n/g,' ')
-    ]);
-    const csvEscape = (v) => {
+  /* ---------- exportação (respeita os filtros aplicados) ---------- */
+  function exportCSV(){
+    const list = sortRecords(getFilteredRecords());
+    if (list.length === 0) return toast('Nenhum registro para exportar com os filtros atuais.');
+    const headers = [
+      'Coleta - Data','Coleta - Horário','Coleta - Cliente/Remetente','Coleta - Endereço','Coleta - Motorista','Coleta - Placa','Pallets coletados',
+      'Entrega - Data','Entrega - Horário','Entrega - Cliente/Armazém/Redespacho','Entrega - Motorista','Entrega - Placa','Pallets após entrega',
+      'Devolvido','Saldo pendente','Dias pendentes','Situação','Devoluções (data · qtd · quem recebeu)','Observações'
+    ];
+    const rows = list.map(r => {
+      const c = col(r), e = ent(r) || {};
+      const devs = (r.devolucoes || []).map(d => `${fmtDate(d.data)} · ${d.qtd} · ${d.recebidoPor || '-'}`).join(' | ');
+      return [
+        fmtDate(c.data), c.horario || '', c.cliente || '', c.endereco || '', c.motorista || '', c.placa || '', qtdColetada(r),
+        e.data ? fmtDate(e.data) : '', e.horario || '', e.destino || '', e.motorista || '', e.placa || '',
+        e.paletesFicaram === 'destino' ? 'Ficaram no destino' : (e.paletesFicaram === 'portoex' ? 'Voltaram com a PortoEX' : ''),
+        qtdDevolvida(r), saldoDe(r), diasPendentes(r) ?? '', STATUS_LABEL[statusDe(r)], devs, (r.obs || '').replace(/\s*\n\s*/g, ' ')
+      ];
+    });
+    const cell = (v) => {
       const s = String(v ?? '');
-      return /[",;\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+      return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const csv = '\uFEFF' + [headers, ...rows].map(row => row.map(csvEscape).join(';')).join('\r\n');
-
+    const csv = '\uFEFF' + [headers, ...rows].map(row => row.map(cell).join(';')).join('\r\n');
     try {
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -1160,69 +1257,84 @@ const operacoesCol = collection(db, 'operacoes');
       a.remove();
       URL.revokeObjectURL(url);
       toast('Exportação concluída.');
-    } catch (e) {
+    } catch (err) {
       toast('Não foi possível exportar agora.');
     }
   }
 
-  /* ---------- db subscription ---------- */
+  /* ---------- banco de dados (Firestore) ---------- */
   function subscribe(){
-    unsub = onSnapshot(operacoesCol,
+    onSnapshot(operacoesCol,
       (snap) => {
-        records = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        // v === 2 = modelo coleta/entrega/devolução (ignora registros de teste do modelo antigo)
+        records = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.v === 2);
         $('connStatus').classList.add('live');
         $('connStatus').innerHTML = '<span class="dot"></span><span>sincronizado</span>';
         renderAll();
       },
-      (err) => {
+      () => {
         $('connStatus').classList.remove('live');
-        $('connStatus').innerHTML = '<span class="dot"></span><span>offline</span>';
+        $('connStatus').innerHTML = '<span class="dot"></span><span>sem conexão</span>';
       }
     );
   }
 
-  /* ---------- init ---------- */
-  async function init(){
+  /* ---------- inicialização ---------- */
+  function init(){
     document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => switchView(b.dataset.view));
-    $('btnNewTop').onclick = () => openDrawer(null);
-    $('btnNewTable').onclick = () => openDrawer(null);
-    $('fab').onclick = () => openDrawer(null);
+    $('btnNewTop').onclick = () => openDrawer(null, false);
+    $('btnNewTable').onclick = () => openDrawer(null, false);
+    $('fab').onclick = () => openDrawer(null, false);
     $('btnClose').onclick = closeDrawer;
     $('btnCancel').onclick = closeDrawer;
     $('overlay').onclick = closeDrawer;
     $('btnSave').onclick = saveRecord;
-    $('fQtdDeixados').oninput = () => updateComputedBox(editingId ? records.find(x=>x.id===editingId) : { qtdDeixados: Number($('fQtdDeixados').value)||0, devolucoes: [] });
+
+    $('segFicaram').querySelectorAll('button').forEach(b => b.onclick = () => {
+      ficaram = (ficaram === b.dataset.v) ? null : b.dataset.v;
+      renderSeg(); refreshComputed();
+    });
+    $('btnLimparEntrega').onclick = () => {
+      ['feData','feHorario','feDestino','feMotorista','fePlaca'].forEach(k => $(k).value = '');
+      ficaram = null; renderSeg(); refreshComputed();
+    };
+    $('drawerBody').addEventListener('input', refreshComputed);
 
     $('devClose').onclick = closeDevolucaoModal;
     $('devCancel').onclick = closeDevolucaoModal;
-    $('devOverlay').onclick = (e) => { if (e.target.id === 'devOverlay') closeDevolucaoModal(); };
+    $('devOverlay').onclick = (ev) => { if (ev.target.id === 'devOverlay') closeDevolucaoModal(); };
     $('devSave').onclick = saveDevolucao;
 
     $('searchInput').oninput = () => { page = 1; renderTable(); };
     $('btnExport').onclick = exportCSV;
 
-    $('chipPendentes').onclick = () => { filters.somentePendentes = !filters.somentePendentes; if (filters.somentePendentes) filters.somenteDevolvidos = false; syncFilterUI(); renderTable(); };
-    $('chipDevolvidos').onclick = () => { filters.somenteDevolvidos = !filters.somenteDevolvidos; if (filters.somenteDevolvidos) filters.somentePendentes = false; syncFilterUI(); renderTable(); };
-    $('fDataIni').onchange = () => { filters.dataIni = $('fDataIni').value; page = 1; renderTable(); };
-    $('fDataFim').onchange = () => { filters.dataFim = $('fDataFim').value; page = 1; renderTable(); };
-    $('fCliente').onchange = () => { filters.cliente = $('fCliente').value; page = 1; renderTable(); };
-    $('fMotorista').onchange = () => { filters.motorista = $('fMotorista').value; page = 1; renderTable(); };
-    $('fPlaca').onchange = () => { filters.placa = $('fPlaca').value; page = 1; renderTable(); };
-    $('fStatus').onchange = () => { filters.status = $('fStatus').value; page = 1; renderTable(); };
-    $('btnClearFilters').onclick = () => { filters = { dataIni:'', dataFim:'', cliente:'', motorista:'', placa:'', status:'', somentePendentes:false, somenteDevolvidos:false }; syncFilterUI(); renderTable(); };
+    $('chipPendentes').onclick = () => {
+      filters.somentePendentes = !filters.somentePendentes;
+      if (filters.somentePendentes) filters.somenteDevolvidos = false;
+      syncFilterUI(); renderTable();
+    };
+    $('chipDevolvidos').onclick = () => {
+      filters.somenteDevolvidos = !filters.somenteDevolvidos;
+      if (filters.somenteDevolvidos) filters.somentePendentes = false;
+      syncFilterUI(); renderTable();
+    };
+    [['fDataIni','dataIni'],['fDataFim','dataFim'],['fCliente','cliente'],['fDestino','destino'],['fMotorista','motorista'],['fPlaca','placa'],['fStatus','status']]
+      .forEach(([id, key]) => { $(id).onchange = () => { filters[key] = $(id).value; page = 1; renderTable(); }; });
+    $('btnClearFilters').onclick = () => { filters = defaultFilters(); syncFilterUI(); renderTable(); };
 
     document.querySelectorAll('th[data-sort]').forEach(th => {
       th.onclick = () => {
-        const field = th.dataset.sort;
-        if (sortState.field === field) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
-        else { sortState.field = field; sortState.dir = 'asc'; }
+        const f = th.dataset.sort;
+        if (sortState.field === f) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+        else { sortState.field = f; sortState.dir = 'asc'; }
         renderTable();
       };
     });
-    $('btnPrevPage').onclick = () => { if (page>1) { page--; renderTable(); } };
+    $('btnPrevPage').onclick = () => { if (page > 1) { page--; renderTable(); } };
     $('btnNextPage').onclick = () => { page++; renderTable(); };
 
     syncFilterUI();
+    renderAll();      // começa zerado, antes mesmo do banco responder
     subscribe();
   }
 
