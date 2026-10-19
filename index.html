@@ -357,9 +357,38 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
 .tipo-tag { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: #fff; white-space: nowrap; }
 .stat .num.money { font-size: 22px; overflow-wrap: anywhere; }
 .rank-table tr.total td { font-weight: 700; border-top: 1px solid var(--border); }
+
+/* ===== com quem estão os pallets ===== */
+.holder-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.holder-note { font-size: 12px; color: var(--text-faint); max-width: 520px; line-height: 1.45; }
+.holder-filter { display: flex; gap: 6px; flex-wrap: wrap; }
+.holder-scroll { max-height: 440px; overflow: auto; }
+.rank-table .stack .sub { font-size: 11px; }
+
+/* ===== diagnóstico ===== */
+.load-error { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: #7A1F2B; color: #fff; padding: 12px 16px; font-size: 13px; line-height: 1.45; text-align: center; }
+.ver { font-size: 11px; color: var(--text-faint); white-space: nowrap; }
 </style>
+<script>
+/* Aviso de falha: se o painel não iniciar, mostra uma mensagem em vez de ficar parado em silêncio */
+(function(){
+  function show(msg){
+    var el = document.getElementById('loadError');
+    if (!el) return;
+    el.style.display = 'block';
+    el.innerHTML = '<b>O painel não carregou direito.</b> ' + msg;
+  }
+  window.addEventListener('error', function(e){ show('Erro: ' + (e.message || 'desconhecido') + '. Tire um print desta mensagem e me envie.'); });
+  window.addEventListener('unhandledrejection', function(e){ show('Erro: ' + ((e.reason && e.reason.message) || e.reason) + '. Tire um print desta mensagem e me envie.'); });
+  setTimeout(function(){
+    if (!window.__palletsOk) show('Não foi possível iniciar a conexão com o banco de dados. Confira a internet, atualize a página com Ctrl + F5 e, se continuar, me avise.');
+  }, 8000);
+})();
+</script>
 </head>
 <body>
+
+<div id="loadError" class="load-error" style="display:none"></div>
 
 <header class="top">
   <div class="brand">
@@ -373,6 +402,7 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
     <button data-view="entregas">Entregas</button>
   </nav>
   <div class="conn" id="connStatus"><span class="dot"></span><span>conectando…</span></div>
+  <span class="ver" title="Versão do painel">v3.3 · 19/10/2026</span>
   <button class="btn btn-outline desktop-only" id="btnNewEntregaTop">+ Nova entrega</button>
   <button class="btn btn-primary desktop-only" id="btnNewColetaTop">+ Nova coleta</button>
 </header>
@@ -410,6 +440,25 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
       <div class="stat"><div class="num" id="stCtrlEntregas">0</div><div class="lbl">Entregas pendentes</div></div>
       <div class="stat"><div class="num" id="stCtrlParceiros">0</div><div class="lbl">Parceiros com pallets</div></div>
       <div class="stat warn"><div class="num money" id="stCtrlValor">R$ 0,00</div><div class="lbl">Valor pendente</div><div class="sub">sob responsabilidade da Controladoria</div></div>
+    </div>
+
+    <div class="section-title">Com quem estão os pallets</div>
+    <div class="panel-card">
+      <div class="holder-head">
+        <div class="holder-note">Cada linha é uma pessoa ou empresa que está com pallets agora, com a quantidade de cada tipo e o valor. O "destinatário" vem do registro da entrega.</div>
+        <div class="holder-filter">
+          <button class="chip-toggle active" data-holder="">Todos</button>
+          <button class="chip-toggle" data-holder="cliente">Dos clientes</button>
+          <button class="chip-toggle" data-holder="portoex">Da PortoEX</button>
+        </div>
+      </div>
+      <div class="rank-wrap holder-scroll">
+        <table class="rank-table">
+          <thead><tr><th>Com quem</th><th>PBR</th><th>Descartável</th><th>Pallets</th><th>Valor</th><th>Controladoria</th><th>Dias</th></tr></thead>
+          <tbody id="holderBody"></tbody>
+        </table>
+        <div class="chart-empty" id="holderEmpty" style="display:none">Nenhum pallet pendente no momento.</div>
+      </div>
     </div>
 
     <div class="section-title">Pallets pendentes por tipo e valor</div>
@@ -744,6 +793,7 @@ const operacoesCol = collection(db, 'operacoes');
   let dono = null, tipoSel = null, stagedColetaDev = [];
   let eFicaram = null, eParceiro = false, eResp = 'portoex', stagedEntregaDev = [];
   let devTarget = null;
+  let holderFilter = '';
   const charts = {};
 
   const defFilters = () => ({ chip:'', dataIni:'', dataFim:'', cliente:'', destinatario:'', motorista:'', placa:'', dono:'', tipo:'', resp:'', status:'', coletaId:'' });
@@ -1212,6 +1262,7 @@ const operacoesCol = collection(db, 'operacoes');
     renderAlerts(ctrl);
     renderRankings();
     renderTipoTable();
+    renderHolders();
     if ($('view-dashboard').classList.contains('active')) renderCharts();
   }
 
@@ -1286,6 +1337,52 @@ const operacoesCol = collection(db, 'operacoes');
         <td class="num">${v.n}</td>
         <td class="num" style="color:var(--text-dim)">${v.dias}d</td>
       </tr>`).join('');
+  }
+
+  // Com quem estão os pallets que ainda não voltaram (uma linha por pessoa / empresa)
+  function renderHolders(){
+    const norm = (t) => String(t || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    const map = {};
+    const add = (key, nome, sub, tipo, qty, unit, dias, ctrl) => {
+      const o = map[key] = map[key] || { nome, sub, pbr: 0, desc: 0, valor: 0, ctrl: 0, dias: 0 };
+      if (tipo === 'descartavel') o.desc += qty; else o.pbr += qty;
+      o.valor += qty * unit;
+      if (ctrl) o.ctrl += qty;
+      o.dias = Math.max(o.dias, dias || 0);
+    };
+    coletas.forEach(c => {
+      if (holderFilter && donoDe(c) !== holderFilter) return;
+      const t = tipoDe(c), unit = valorUnitDe(c), falta = aEntregar(c);
+      if (falta > 0) add('__aguardando', 'PortoEX — aguardando entrega', 'coletados e ainda não entregues', t, falta, unit, diasColeta(c), false);
+      entregasDe(c).forEach(e => {
+        const s = saldoEntrega(e);
+        if (s <= 0) return;
+        const ctrl = respDe(e) === 'controladoria';
+        if (e.paletesFicaram === 'destino') {
+          const nome = (e.destinatario || '').trim() || 'Destinatário não informado';
+          add('d:' + norm(nome), nome, 'destinatário', t, s, unit, diasEntrega(e), ctrl);
+        } else {
+          add('__voltaram', 'PortoEX — voltaram com a gente', 'entregamos só a carga', t, s, unit, diasEntrega(e), ctrl);
+        }
+      });
+    });
+    const rows = Object.values(map).map(o => ({ ...o, qtd: o.pbr + o.desc })).sort((a, b) => b.qtd - a.qtd);
+    $('holderEmpty').style.display = rows.length ? 'none' : 'block';
+    if (rows.length === 0) { $('holderBody').innerHTML = ''; return; }
+    const tot = rows.reduce((t, o) => ({ pbr: t.pbr + o.pbr, desc: t.desc + o.desc, qtd: t.qtd + o.qtd, valor: t.valor + o.valor, ctrl: t.ctrl + o.ctrl }), { pbr: 0, desc: 0, qtd: 0, valor: 0, ctrl: 0 });
+    $('holderBody').innerHTML = rows.map(o => `
+      <tr>
+        <td><div class="stack"><span class="main">${esc(o.nome)}</span><span class="sub">${esc(o.sub)}</span></div></td>
+        <td class="num">${o.pbr || '—'}</td>
+        <td class="num">${o.desc || '—'}</td>
+        <td class="num accent">${o.qtd}</td>
+        <td class="num">${fmtBRL(o.valor)}</td>
+        <td class="num${o.ctrl ? ' warn' : ''}">${o.ctrl || '—'}</td>
+        <td class="num" style="color:var(--text-dim)">${o.dias}d</td>
+      </tr>`).join('') + `
+      <tr class="total">
+        <td>Total</td><td class="num">${tot.pbr}</td><td class="num">${tot.desc}</td><td class="num accent">${tot.qtd}</td><td class="num">${fmtBRL(tot.valor)}</td><td class="num">${tot.ctrl}</td><td></td>
+      </tr>`;
   }
 
   function renderTipoTable(){
@@ -1816,6 +1913,11 @@ const operacoesCol = collection(db, 'operacoes');
     $('fabEntrega').onclick = () => { $('fabMenu').classList.remove('show'); openEntrega(null, null); };
     document.addEventListener('click', (ev) => { if (!ev.target.closest('#fabMenu')) $('fabMenu').classList.remove('show'); });
 
+    document.querySelectorAll('[data-holder]').forEach(b => b.onclick = () => {
+      holderFilter = b.dataset.holder;
+      document.querySelectorAll('[data-holder]').forEach(x => x.classList.toggle('active', x === b));
+      renderHolders();
+    });
     $('overlay').onclick = closeDrawers;
     document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeDrawers);
     $('btnSaveColeta').onclick = saveColeta;
@@ -1850,6 +1952,7 @@ const operacoesCol = collection(db, 'operacoes');
     syncFilterUI('entregas');
     renderAll();      // começa zerado, antes mesmo do banco responder
     subscribe();
+    window.__palletsOk = true;   // avisa que o painel iniciou (usado pelo aviso de falha)
   }
 
   init();
