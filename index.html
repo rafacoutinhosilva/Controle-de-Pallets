@@ -296,7 +296,7 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
 }
 
 @media (max-width: 900px) {
-  .stats-grid, .stats-grid.cols4 { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid, .stats-grid.cols4, .stats-grid.cols5 { grid-template-columns: repeat(2, 1fr); }
   .dash-grid, .dash-grid-2 { grid-template-columns: 1fr; }
   header.top { padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); gap: 12px; }
   header.top .desktop-only { display: none; }
@@ -325,6 +325,38 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
   .filter-field input, .filter-field select { max-width: none; }
   .filters-bar .filter-field { flex: 1 1 140px; }
 }
+
+/* ===== v3: coletas e entregas separadas ===== */
+.stats-grid.cols5 { grid-template-columns: repeat(5, 1fr); }
+.badge.entrega_parcial { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.badge.entregue { background: rgba(255,255,255,0.12); color: #fff; }
+.badge.concluida { background: var(--green-dim); color: var(--green); }
+.resp-tag { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.resp-tag.controladoria { background: var(--accent); color: var(--on-accent); }
+.resp-tag.portoex { background: transparent; border: 1px solid #5D637E; color: var(--text-dim); }
+.filter-chip { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-dim); border: 1px solid var(--accent); color: var(--accent); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; font-weight: 600; }
+.filter-chip button { background: none; border: none; color: inherit; font-size: 16px; line-height: 1; cursor: pointer; padding: 0 2px; }
+.info-box { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--text-dim); line-height: 1.55; margin-top: 8px; }
+.info-box b { color: var(--text); }
+.banner { background: var(--accent-dim); border: 1px solid var(--accent); color: var(--text); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; margin-bottom: 14px; }
+.banner b { color: var(--accent); }
+.btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+.btn-outline:hover { background: var(--accent-dim); }
+.seg button.active[data-v="controladoria"] { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.seg button.active[data-v="sim"] { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.seg button.active[data-v="nao"] { background: var(--grey-dim); border-color: var(--grey); color: var(--grey); }
+.modal-summary .full { grid-column: 1 / -1; }
+.fab-menu { display: none; position: fixed; right: 18px; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 41; flex-direction: column; gap: 8px; align-items: flex-end; }
+.fab-menu.show { display: flex; }
+.fab-menu .btn { box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+.fab-menu .btn-outline { background: var(--panel); }
+.table-note { font-size: 12px; color: var(--text-faint); margin: 0 0 10px; }
+
+/* ===== tipo de pallet e valores ===== */
+.tag-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.tipo-tag { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: #fff; white-space: nowrap; }
+.stat .num.money { font-size: 22px; overflow-wrap: anywhere; }
+.rank-table tr.total td { font-weight: 700; border-top: 1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -337,10 +369,12 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
   </div>
   <nav class="tabs">
     <button class="active" data-view="dashboard">Dashboard</button>
-    <button data-view="controle">Controle de Pallets</button>
+    <button data-view="coletas">Coletas</button>
+    <button data-view="entregas">Entregas</button>
   </nav>
   <div class="conn" id="connStatus"><span class="dot"></span><span>conectando…</span></div>
-  <button class="btn btn-primary desktop-only" id="btnNewTop">+ Novo registro</button>
+  <button class="btn btn-outline desktop-only" id="btnNewEntregaTop">+ Nova entrega</button>
+  <button class="btn btn-primary desktop-only" id="btnNewColetaTop">+ Nova coleta</button>
 </header>
 
 <div class="app">
@@ -349,34 +383,56 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
   <div class="view active" id="view-dashboard">
 
     <div class="section-title">Pallets dos clientes — a devolver</div>
-    <div class="stats-grid">
+    <div class="stats-grid cols4">
       <div class="stat"><div class="num" id="stColetado">0</div><div class="lbl">Total coletado</div></div>
       <div class="stat"><div class="num" id="stDevolvido">0</div><div class="lbl">Total devolvido</div></div>
       <div class="stat accent"><div class="num" id="stSaldo">0</div><div class="lbl">Saldo pendente</div><div class="sub">a devolver aos clientes</div></div>
-      <div class="stat"><div class="num" id="stPortoex">0</div><div class="lbl">Com a PortoEX</div><div class="sub">no caminhão ou voltaram com a gente</div></div>
-      <div class="stat warn"><div class="num" id="stDestino">0</div><div class="lbl">Nos destinos</div><div class="sub">destinatário / armazém / redespacho</div></div>
       <div class="stat"><div class="num" id="stClientes">0</div><div class="lbl">Clientes com pallets a devolver</div><div class="sub">onde coletamos e ainda devemos pallets</div></div>
+      <div class="stat"><div class="num" id="stAguardando">0</div><div class="lbl">Aguardando entrega</div><div class="sub">coletados e ainda não entregues</div></div>
+      <div class="stat"><div class="num" id="stVoltaram">0</div><div class="lbl">Voltaram com a PortoEX</div><div class="sub">entregamos só a carga</div></div>
+      <div class="stat warn"><div class="num" id="stDestino">0</div><div class="lbl">Nos destinos</div><div class="sub">destinatário / armazém / redespacho</div></div>
+      <div class="stat accent"><div class="num money" id="stValorClientes">R$ 0,00</div><div class="lbl">Valor pendente</div><div class="sub">saldo × valor do pallet (PBR / descartável)</div></div>
     </div>
 
     <div class="section-title">Pallets da PortoEX — precisam voltar pra base</div>
-    <div class="stats-grid cols4">
+    <div class="stats-grid">
       <div class="stat accent"><div class="num" id="stOwnFora">0</div><div class="lbl">Fora da base</div><div class="sub">nossos pallets que ainda não retornaram</div></div>
-      <div class="stat"><div class="num" id="stOwnPortoex">0</div><div class="lbl">Com a PortoEX</div><div class="sub">ainda sem retorno à base registrado</div></div>
+      <div class="stat"><div class="num" id="stOwnAguardando">0</div><div class="lbl">Aguardando entrega</div><div class="sub">coletados e ainda não entregues</div></div>
+      <div class="stat"><div class="num" id="stOwnVoltaram">0</div><div class="lbl">Com a PortoEX</div><div class="sub">ainda sem retorno à base registrado</div></div>
       <div class="stat warn"><div class="num" id="stOwnDestino">0</div><div class="lbl">Nos destinos</div><div class="sub">destinatário / armazém / redespacho</div></div>
       <div class="stat"><div class="num" id="stOwnRetornaram">0</div><div class="lbl">Já retornaram à base</div></div>
+      <div class="stat accent"><div class="num money" id="stOwnValor">R$ 0,00</div><div class="lbl">Valor fora da base</div><div class="sub">nossos pallets ainda não retornados</div></div>
+    </div>
+
+    <div class="section-title">Retorno sob responsabilidade da Controladoria</div>
+    <div class="stats-grid cols4">
+      <div class="stat warn"><div class="num" id="stCtrlSaldo">0</div><div class="lbl">Pallets pendentes</div><div class="sub">entregas com parceiros / controladoria</div></div>
+      <div class="stat"><div class="num" id="stCtrlEntregas">0</div><div class="lbl">Entregas pendentes</div></div>
+      <div class="stat"><div class="num" id="stCtrlParceiros">0</div><div class="lbl">Parceiros com pallets</div></div>
+      <div class="stat warn"><div class="num money" id="stCtrlValor">R$ 0,00</div><div class="lbl">Valor pendente</div><div class="sub">sob responsabilidade da Controladoria</div></div>
+    </div>
+
+    <div class="section-title">Pallets pendentes por tipo e valor</div>
+    <div class="panel-card">
+      <div class="rank-wrap">
+        <table class="rank-table">
+          <thead><tr><th>Tipo</th><th>Valor do pallet</th><th>Dos clientes</th><th>Da PortoEX</th><th>Valor pendente</th></tr></thead>
+          <tbody id="tipoBody"></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="section-title">Atenção</div>
     <div class="alerts-grid" id="alertsGrid"></div>
 
-    <div class="section-title">Análise</div>
+    <div class="section-title">Análise (pallets dos clientes)</div>
     <div class="dash-grid">
       <div class="panel-card">
-        <h3>Evolução dos pallets de clientes</h3>
+        <h3>Evolução dos pallets</h3>
         <div class="canvas-wrap" id="wrapEvolucao"></div>
       </div>
       <div class="panel-card">
-        <h3>Situação dos pallets de clientes</h3>
+        <h3>Situação dos pallets</h3>
         <div class="canvas-wrap small" id="wrapSituacao"></div>
       </div>
     </div>
@@ -390,7 +446,7 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
         <h3>Clientes com pallets a devolver</h3>
         <div class="rank-wrap">
           <table class="rank-table">
-            <thead><tr><th>Cliente</th><th>A devolver</th><th>Com a PortoEX</th><th>Nos destinos</th><th>Dias</th></tr></thead>
+            <thead><tr><th>Cliente</th><th>A devolver</th><th>Valor</th><th>Aguard. entrega</th><th>Com a PortoEX</th><th>Nos destinos</th><th>Dias</th></tr></thead>
             <tbody id="rankBody"></tbody>
           </table>
           <div class="chart-empty" id="rankEmpty" style="display:none">Nenhum cliente com saldo pendente.</div>
@@ -398,97 +454,42 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
       </div>
     </div>
 
-  </div>
-
-  <!-- ============ CONTROLE DE PALLETS ============ -->
-  <div class="view" id="view-controle">
-
-    <div class="toolbar">
-      <input class="search" id="searchInput" placeholder="Buscar por cliente, destino, motorista ou placa…">
-      <button class="btn btn-primary" id="btnNewTable">+ Novo registro</button>
-      <button class="btn btn-ghost" id="btnExport">Exportar CSV</button>
-    </div>
-
-    <div class="filters-bar">
-      <button class="chip-toggle destaque" id="chipPendentes">Pallets pendentes</button>
-      <button class="chip-toggle" id="chipDevolvidos">Somente devolvidos</button>
-      <div class="filter-field"><label>Coleta de</label><input type="date" id="fDataIni"></div>
-      <div class="filter-field"><label>Coleta até</label><input type="date" id="fDataFim"></div>
-      <div class="filter-field"><label>Cliente</label><select id="fCliente"><option value="">Todos</option></select></div>
-      <div class="filter-field"><label>Destinatário</label><select id="fDestino"><option value="">Todos</option></select></div>
-      <div class="filter-field"><label>Motorista</label><select id="fMotorista"><option value="">Todos</option></select></div>
-      <div class="filter-field"><label>Placa</label><select id="fPlaca"><option value="">Todas</option></select></div>
-      <div class="filter-field">
-        <label>Pallets de quem</label>
-        <select id="fDono">
-          <option value="">Todos</option>
-          <option value="cliente">Do cliente</option>
-          <option value="portoex">Da PortoEX</option>
-        </select>
-      </div>
-      <div class="filter-field">
-        <label>Situação</label>
-        <select id="fStatus">
-          <option value="">Todas</option>
-          <option value="aguardando_entrega">Aguardando entrega</option>
-          <option value="com_portoex">Com a PortoEX</option>
-          <option value="no_destino">No destino</option>
-          <option value="parcial">Parcialmente devolvido</option>
-          <option value="devolvido">Devolvido / retornou à base</option>
-        </select>
-      </div>
-      <button class="filters-clear" id="btnClearFilters">Limpar filtros</button>
-    </div>
-
-    <div class="table-wrap">
-      <table class="data" id="table" style="display:none">
-        <thead>
-          <tr>
-            <th data-sort="coletaData">Coleta<span class="arrow" id="arrow-coletaData"></span></th>
-            <th data-sort="cliente">Cliente / Remetente<span class="arrow" id="arrow-cliente"></span></th>
-            <th>Motorista / Placa</th>
-            <th data-sort="qtd">Pallets<span class="arrow" id="arrow-qtd"></span></th>
-            <th data-sort="entregaData">Entrega<span class="arrow" id="arrow-entregaData"></span></th>
-            <th data-sort="destino">Destinatário<span class="arrow" id="arrow-destino"></span></th>
-            <th data-sort="status">Situação<span class="arrow" id="arrow-status"></span></th>
-            <th data-sort="saldo">Saldo<span class="arrow" id="arrow-saldo"></span></th>
-            <th data-sort="dias">Dias<span class="arrow" id="arrow-dias"></span></th>
-            <th>Obs.</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-      <div class="empty" id="emptyState">
-        <div class="big" id="emptyBig">Nenhum registro ainda</div>
-        <div class="small" id="emptySmall">Cadastre a primeira coleta clicando em "Novo registro". Tudo fica salvo automaticamente e disponível para toda a equipe.</div>
-      </div>
-      <div class="pagination" id="pagination" style="display:none">
-        <div class="info" id="pageInfo"></div>
-        <div class="controls">
-          <button id="btnPrevPage">Anterior</button>
-          <button id="btnNextPage">Próxima</button>
-        </div>
+    <div class="panel-card" style="margin-top:12px">
+      <h3>Parceiros / Controladoria com pallets pendentes</h3>
+      <div class="rank-wrap">
+        <table class="rank-table">
+          <thead><tr><th>Parceiro</th><th>Pallets pendentes</th><th>Valor</th><th>Entregas</th><th>Dias</th></tr></thead>
+          <tbody id="partBody"></tbody>
+        </table>
+        <div class="chart-empty" id="partEmpty" style="display:none">Nenhum pallet pendente sob responsabilidade da Controladoria.</div>
       </div>
     </div>
 
   </div>
+
+  <!-- ============ COLETAS / ENTREGAS (montadas pelo script) ============ -->
+  <div class="view" id="view-coletas"></div>
+  <div class="view" id="view-entregas"></div>
 
 </div>
 
 <button class="fab" id="fab" aria-label="Novo registro">+</button>
+<div class="fab-menu" id="fabMenu">
+  <button class="btn btn-outline" id="fabEntrega">+ Nova entrega</button>
+  <button class="btn btn-primary" id="fabColeta">+ Nova coleta</button>
+</div>
 
-<!-- ============ DRAWER: novo / editar registro ============ -->
 <div class="overlay" id="overlay"></div>
-<div class="drawer" id="drawer">
-  <div class="drawer-head">
-    <h2 id="drawerTitle">Novo registro</h2>
-    <button id="btnClose" aria-label="Fechar">&times;</button>
-  </div>
-  <div class="drawer-body" id="drawerBody">
 
-    <div class="form-section" id="secColeta">
-      <div class="form-section-title"><span>1 · Coleta</span></div>
+<!-- ============ DRAWER: coleta ============ -->
+<div class="drawer" id="drawerColeta">
+  <div class="drawer-head">
+    <h2 id="dcTitle">Nova coleta</h2>
+    <button data-close aria-label="Fechar">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <div class="form-section">
+      <div class="form-section-title"><span>Coleta</span></div>
       <div class="field-row">
         <div class="field"><label>Data</label><input id="fcData" type="date"></div>
         <div class="field"><label>Horário</label><input id="fcHorario" type="time"></div>
@@ -517,21 +518,79 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
         </div>
         <div class="hint">Do cliente: devemos devolver a ele. Da PortoEX: precisam voltar pra nossa base.</div>
       </div>
+      <div class="field">
+        <label>Tipo de pallet</label>
+        <div class="seg" id="segTipo">
+          <button type="button" data-v="pbr">PBR</button>
+          <button type="button" data-v="descartavel">Descartável</button>
+        </div>
+        <div class="hint">O valor de cada tipo é aplicado automaticamente.</div>
+      </div>
     </div>
 
-    <div class="form-section" id="secEntrega">
-      <div class="form-section-title"><span>2 · Entrega</span><span class="opt">preencha quando entregar</span></div>
+    <div class="form-section">
+      <div class="field">
+        <label>Observações</label>
+        <textarea id="fcObs" placeholder="Detalhes da coleta…"></textarea>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><span>Resumo (automático)</span></div>
+      <div class="computed-box">
+        <div>
+          <div class="k" id="ccSaldoLabel">Saldo pendente</div>
+          <div class="v" id="ccSaldo">0</div>
+        </div>
+        <div id="ccBadge"></div>
+      </div>
+      <div class="info-box" id="ccInfo"></div>
+      <div id="ccHistBox" style="display:none;margin-top:14px">
+        <div class="field"><label id="ccHistTitle">Devoluções registradas</label></div>
+        <div id="ccHistList"></div>
+        <div class="hint">Aqui ficam só os pallets devolvidos sem terem sido entregues. As devoluções das entregas ficam em cada entrega.</div>
+      </div>
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn btn-ghost" data-close>Cancelar</button>
+    <button class="btn btn-primary" id="btnSaveColeta">Salvar</button>
+  </div>
+</div>
+
+<!-- ============ DRAWER: entrega ============ -->
+<div class="drawer" id="drawerEntrega">
+  <div class="drawer-head">
+    <h2 id="deTitle">Nova entrega</h2>
+    <button data-close aria-label="Fechar">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <div class="form-section">
+      <div class="form-section-title"><span>Coleta de origem</span></div>
+      <div class="field">
+        <label>Referente à coleta</label>
+        <select id="feColeta"></select>
+        <div class="info-box" id="feInfo">Escolha a coleta para ver quantos pallets ainda podem ser entregues.</div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><span>Entrega</span></div>
       <div class="field-row">
         <div class="field"><label>Data</label><input id="feData" type="date"></div>
         <div class="field"><label>Horário</label><input id="feHorario" type="time"></div>
       </div>
       <div class="field">
         <label>Destinatário / Armazém / Redespacho</label>
-        <input id="feDestino" list="nomesList" placeholder="Onde a carga foi entregue">
+        <input id="feDestinatario" list="nomesList" placeholder="Onde a carga foi entregue">
       </div>
       <div class="field-row">
         <div class="field"><label>Motorista</label><input id="feMotorista" list="motoristasList" placeholder="Nome"></div>
         <div class="field"><label>Placa</label><input id="fePlaca" list="placasList" placeholder="ABC1D23" style="text-transform:uppercase"></div>
+      </div>
+      <div class="field">
+        <label>Quantidade de pallets entregues</label>
+        <input id="feQtd" type="number" min="1" step="1" inputmode="numeric" placeholder="0">
       </div>
       <div class="field">
         <label>O que aconteceu com os pallets?</label>
@@ -541,44 +600,67 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
         </div>
         <div class="hint">Se ficaram no destinatário, anote nas observações.</div>
       </div>
-      <button type="button" class="link-btn" id="btnLimparEntrega">Limpar dados da entrega</button>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><span>Parceiro e retorno dos pallets</span></div>
+      <div class="field">
+        <label>Entrega feita por parceiro?</label>
+        <div class="seg" id="segParceiro">
+          <button type="button" data-v="nao">Não</button>
+          <button type="button" data-v="sim">Sim, parceiro</button>
+        </div>
+      </div>
+      <div class="field" id="feParceiroWrap" style="display:none">
+        <label>Nome do parceiro</label>
+        <input id="feParceiro" list="parceirosList" placeholder="Transportadora / parceiro">
+      </div>
+      <div class="field">
+        <label>Quem é responsável pelo retorno dos pallets?</label>
+        <div class="seg" id="segResp">
+          <button type="button" data-v="portoex">PortoEX</button>
+          <button type="button" data-v="controladoria">Controladoria</button>
+        </div>
+        <div class="hint">Em entrega com parceiro, o retorno é da Controladoria. Você pode alterar se precisar.</div>
+      </div>
     </div>
 
     <div class="form-section">
       <div class="field">
         <label>Observações</label>
-        <textarea id="fObs" placeholder="Ex.: pallets ficaram no destinatário (nome da empresa)…"></textarea>
+        <textarea id="feObs" placeholder="Ex.: pallets ficaram no destinatário (nome da empresa)…"></textarea>
       </div>
     </div>
 
-    <div class="form-section" id="secResumo">
+    <div class="form-section">
       <div class="form-section-title"><span>Resumo (automático)</span></div>
       <div class="computed-box">
         <div>
-          <div class="k" id="calcSaldoLabel">Saldo pendente</div>
-          <div class="v" id="calcSaldo">0</div>
+          <div class="k" id="ceSaldoLabel">Saldo pendente</div>
+          <div class="v" id="ceSaldo">0</div>
         </div>
-        <div id="calcStatusBadge"></div>
+        <div id="ceBadge"></div>
       </div>
-      <div id="histBox" style="display:none">
-        <div class="field"><label id="histTitle">Devoluções registradas</label></div>
-        <div id="histList"></div>
-        <div class="hint">Para registrar novas devoluções ou retornos, use o botão na linha da tabela.</div>
+      <div class="info-box" id="ceResp"></div>
+      <div id="ceHistBox" style="display:none;margin-top:14px">
+        <div class="field"><label id="ceHistTitle">Devoluções registradas</label></div>
+        <div id="ceHistList"></div>
+        <div class="hint">Para registrar uma nova devolução, use o botão na linha da tabela de entregas.</div>
       </div>
     </div>
-
   </div>
   <div class="drawer-foot">
-    <button class="btn btn-ghost" id="btnCancel">Cancelar</button>
-    <button class="btn btn-primary" id="btnSave">Salvar</button>
+    <button class="btn btn-ghost" data-close>Cancelar</button>
+    <button class="btn btn-primary" id="btnSaveEntrega">Salvar</button>
   </div>
 </div>
 
 <datalist id="nomesList"></datalist>
 <datalist id="motoristasList"></datalist>
 <datalist id="placasList"></datalist>
+<datalist id="parceirosList"></datalist>
 
-<!-- ============ MODAL: registrar devolução ============ -->
+<!-- ============ MODAL: devolução / retorno à base ============ -->
 <div class="modal-overlay" id="devOverlay">
   <div class="modal">
     <div class="modal-head">
@@ -586,13 +668,15 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
       <button id="devClose" aria-label="Fechar">&times;</button>
     </div>
     <div class="modal-body">
+      <div class="banner" id="devBanner" style="display:none"></div>
       <div class="modal-summary">
         <div><div class="k" id="devParaLabel">Devolver para</div><div class="v" id="devCliente">—</div></div>
-        <div><div class="k">Data da coleta</div><div class="v" id="devColetaData">—</div></div>
-        <div><div class="k">Coletados</div><div class="v" id="devColetados">0</div></div>
+        <div><div class="k" id="devDataK">Data da entrega</div><div class="v" id="devDataInfo">—</div></div>
+        <div><div class="k" id="devQtdK">Entregues</div><div class="v" id="devQtdInfo">0</div></div>
         <div><div class="k" id="devJaLabel">Já devolvido</div><div class="v" id="devJa">0</div></div>
         <div><div class="k">Saldo atual</div><div class="v saldo" id="devSaldo">0</div></div>
         <div><div class="k">Onde estão agora</div><div class="v" id="devOnde">—</div></div>
+        <div class="full"><div class="k">Valor do saldo atual</div><div class="v saldo" id="devValor">R$ 0,00</div></div>
       </div>
       <div class="field">
         <label id="devQtdLabel">Quantidade devolvida agora</label>
@@ -641,30 +725,32 @@ const operacoesCol = collection(db, 'operacoes');
 (function(){
   const ALERTA_DIAS = 15;
   const PAGE_SIZE = 15;
-  const STATUS_LABEL = {
-    aguardando_entrega: 'Aguardando entrega',
-    com_portoex: 'Com a PortoEX',
-    no_destino: 'No destino',
-    parcial: 'Parcial',
-    devolvido: 'Devolvido'
-  };
-
-  let records = [];
-  let editingId = null;
-  let ficaram = null;            // estado do formulário: 'destino' | 'portoex' | null
-  let stagedDevolucoes = [];     // estado do formulário: devoluções do registro em edição
-  let dono = null;               // estado do formulário: 'cliente' | 'portoex' | null
-  let devTargetId = null;
-  let filters = defaultFilters();
-  let sortState = { field: 'coletaData', dir: 'desc' };
-  let page = 1;
-  const charts = {};
-
+  // Valor unitário (R$) de cada tipo de pallet. Fica gravado em cada coleta no momento do cadastro.
+  const VALORES = { pbr: 30, descartavel: 23 };
+  const TIPO_LABEL = { pbr: 'PBR', descartavel: 'Descartável' };
+  const fmtBRL = (n) => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const fmtNum = (n) => (Number(n) || 0).toFixed(2).replace('.', ',');
   const $ = (id) => document.getElementById(id);
 
-  function defaultFilters(){
-    return { dataIni:'', dataFim:'', cliente:'', destino:'', motorista:'', placa:'', dono:'', status:'', somentePendentes:false, somenteDevolvidos:false };
-  }
+  const LABEL = {
+    aguardando_entrega: 'Aguardando entrega', entrega_parcial: 'Entrega parcial', entregue: 'Entregue', concluida: 'Concluída',
+    no_destino: 'No destino', com_portoex: 'Com a PortoEX', parcial: 'Parcial', devolvido: 'Devolvido'
+  };
+
+  /* ---------- estado ---------- */
+  let records = [], coletas = [], entregas = [];
+  let coletaById = {}, entregaById = {}, entregasByColeta = {};
+  let editingColetaId = null, editingEntregaId = null;
+  let dono = null, tipoSel = null, stagedColetaDev = [];
+  let eFicaram = null, eParceiro = false, eResp = 'portoex', stagedEntregaDev = [];
+  let devTarget = null;
+  const charts = {};
+
+  const defFilters = () => ({ chip:'', dataIni:'', dataFim:'', cliente:'', destinatario:'', motorista:'', placa:'', dono:'', tipo:'', resp:'', status:'', coletaId:'' });
+  const VS = {
+    coletas:  { f: defFilters(), sort: { field: 'data', dir: 'desc' }, page: 1 },
+    entregas: { f: defFilters(), sort: { field: 'data', dir: 'desc' }, page: 1 }
+  };
 
   /* ---------- helpers ---------- */
   function todayISO(){
@@ -680,7 +766,7 @@ const operacoesCol = collection(db, 'operacoes');
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
-  function uniqueSorted(arr){
+  function uniq(arr){
     return Array.from(new Set(arr.filter(Boolean))).sort((a,b) => a.localeCompare(b, 'pt-BR'));
   }
   function toast(msg){
@@ -688,285 +774,531 @@ const operacoesCol = collection(db, 'operacoes');
     el.className = 'toast';
     el.textContent = msg;
     $('toastWrap').appendChild(el);
-    setTimeout(() => el.remove(), 3600);
+    setTimeout(() => el.remove(), 3800);
+  }
+  const sumOf = (list, fn) => list.reduce((s, x) => s + fn(x), 0);
+  function diasDesde(iso){
+    if (!iso) return null;
+    const d0 = new Date(iso + 'T00:00:00'), d1 = new Date(todayISO() + 'T00:00:00');
+    return Math.max(0, Math.round((d1 - d0) / 86400000));
   }
 
   /* ---------- regras de negócio (tudo calculado, nada manual) ---------- */
-  const col = (r) => r.coleta || {};
-  const ent = (r) => r.entrega || null;
-  const qtdColetada = (r) => Number(col(r).qtdPaletes) || 0;
-  const qtdDevolvida = (r) => (r.devolucoes || []).reduce((s,d) => s + (Number(d.qtd) || 0), 0);
-  const saldoDe = (r) => Math.max(0, qtdColetada(r) - qtdDevolvida(r));
-  // De quem são os pallets (registros antigos, sem o campo, contam como do cliente)
-  const donoDe = (r) => (col(r).donoPaletes === 'portoex' ? 'portoex' : 'cliente');
+  const devQtd = (r) => (r.devolucoes || []).reduce((s, d) => s + (Number(d.qtd) || 0), 0);
+  const entregasDe = (c) => entregasByColeta[c.id] || [];
+  const coletaDe = (e) => coletaById[e.coletaId] || null;
+  const donoDe = (c) => (c && c.donoPaletes === 'portoex' ? 'portoex' : 'cliente');
+  const qtdColetada = (c) => Number(c.qtdPaletes) || 0;
+  const qtdEntregue = (c) => sumOf(entregasDe(c), e => Number(e.qtd) || 0);
+  // pallets coletados que ainda não foram entregues nem devolvidos direto ao cliente
+  const aEntregar = (c) => Math.max(0, qtdColetada(c) - qtdEntregue(c) - devQtd(c));
+  const saldoEntrega = (e) => Math.max(0, (Number(e.qtd) || 0) - devQtd(e));
+  const saldoColeta = (c) => aEntregar(c) + sumOf(entregasDe(c), saldoEntrega);
+  const devolvidoColeta = (c) => devQtd(c) + sumOf(entregasDe(c), devQtd);
+  // quanto ainda dá pra entregar dessa coleta (ignorando uma entrega que está sendo editada)
+  const disponivel = (c, ignoreEntregaId) =>
+    Math.max(0, qtdColetada(c) - sumOf(entregasDe(c).filter(x => x.id !== ignoreEntregaId), x => Number(x.qtd) || 0) - devQtd(c));
 
-  // Onde está o saldo que ainda não voltou pro cliente
-  function localPaletes(r){
-    if (saldoDe(r) <= 0) return null;
-    return (ent(r) && ent(r).paletesFicaram === 'destino') ? 'destino' : 'portoex';
+  function statusColeta(c){
+    if (saldoColeta(c) <= 0) return 'concluida';
+    if (entregasDe(c).length === 0) return 'aguardando_entrega';
+    return aEntregar(c) > 0 ? 'entrega_parcial' : 'entregue';
   }
-  function statusDe(r){
-    if (saldoDe(r) <= 0) return 'devolvido';
-    if (qtdDevolvida(r) > 0) return 'parcial';
-    if (!ent(r)) return 'aguardando_entrega';
-    return ent(r).paletesFicaram === 'destino' ? 'no_destino' : 'com_portoex';
+  function statusEntrega(e){
+    if (saldoEntrega(e) <= 0) return 'devolvido';
+    if (devQtd(e) > 0) return 'parcial';
+    return e.paletesFicaram === 'destino' ? 'no_destino' : 'com_portoex';
   }
-  function diasPendentes(r){
-    if (saldoDe(r) <= 0 || !col(r).data) return null;
-    const d0 = new Date(col(r).data + 'T00:00:00');
-    const d1 = new Date(todayISO() + 'T00:00:00');
-    return Math.max(0, Math.round((d1 - d0) / 86400000));
+  const diasColeta = (c) => saldoColeta(c) > 0 ? diasDesde(c.data) : null;
+  const diasEntrega = (e) => saldoEntrega(e) > 0 ? diasDesde(e.data) : null;
+  const respDe = (e) => e.respRetorno === 'controladoria' ? 'controladoria' : 'portoex';
+  // tipo e valor do pallet (o valor unitário é o que foi gravado na coleta)
+  const tipoDe = (c) => (c && c.tipoPallet === 'descartavel' ? 'descartavel' : 'pbr');
+  const valorUnitDe = (c) => (c && Number(c.valorUnit) > 0 ? Number(c.valorUnit) : VALORES[tipoDe(c)]);
+  const valorSaldoColeta = (c) => saldoColeta(c) * valorUnitDe(c);
+  const valorSaldoEntrega = (e) => { const c = coletaDe(e); return c ? saldoEntrega(e) * valorUnitDe(c) : 0; };
+
+  function statusLabel(s, d){
+    if (s === 'devolvido' && d === 'portoex') return 'Retornou à base';
+    return LABEL[s] || s;
   }
-  function statusLabel(s, dono){
-    if (s === 'devolvido' && dono === 'portoex') return 'Retornou à base';
-    return STATUS_LABEL[s] || s;
+  function badgeHtml(s, d){
+    return `<span class="badge ${s}"><span class="dot"></span>${statusLabel(s, d)}</span>`;
   }
-  function badgeHtml(s, dono){
-    return `<span class="badge ${s}"><span class="dot"></span>${statusLabel(s, dono)}</span>`;
+  function statusSubColeta(c){
+    const s = statusColeta(c);
+    if (s === 'entrega_parcial') return `faltam ${aEntregar(c)} para entregar`;
+    if (s === 'entregue') return `a devolver ${saldoColeta(c)}`;
+    return '';
   }
-  function statusSub(r){
-    const s = statusDe(r);
-    if (s === 'parcial') return `restam ${saldoDe(r)} ${localPaletes(r) === 'destino' ? 'no destino' : 'com a PortoEX'}`;
+  function statusSubEntrega(e){
+    const s = statusEntrega(e);
+    if (s === 'parcial') return `restam ${saldoEntrega(e)} ${e.paletesFicaram === 'destino' ? 'no destino' : 'com a PortoEX'}`;
     if (s === 'devolvido') {
-      const last = (r.devolucoes || []).slice(-1)[0];
+      const last = (e.devolucoes || []).slice(-1)[0];
       if (last) return `${fmtDate(last.data)}${last.recebidoPor ? ' · ' + last.recebidoPor : ''}`;
     }
     return '';
   }
 
-  /* ---------- filtros / ordenação ---------- */
-  function getFilteredRecords(){
-    const q = ($('searchInput').value || '').trim().toLowerCase();
-    return records.filter(r => {
-      const c = col(r), e = ent(r);
-      const saldo = saldoDe(r), status = statusDe(r);
-      if (filters.somentePendentes && saldo <= 0) return false;
-      if (filters.somenteDevolvidos && saldo > 0) return false;
-      if (filters.dono && donoDe(r) !== filters.dono) return false;
-      if (filters.dataIni && (c.data || '') < filters.dataIni) return false;
-      if (filters.dataFim && (c.data || '') > filters.dataFim) return false;
-      if (filters.cliente && c.cliente !== filters.cliente) return false;
-      if (filters.destino && (!e || e.destino !== filters.destino)) return false;
-      if (filters.motorista && c.motorista !== filters.motorista && (!e || e.motorista !== filters.motorista)) return false;
-      if (filters.placa && c.placa !== filters.placa && (!e || e.placa !== filters.placa)) return false;
-      if (filters.status && status !== filters.status) return false;
-      if (q) {
-        const hay = [c.cliente, c.motorista, c.placa, c.endereco, e && e.destino, e && e.motorista, e && e.placa]
-          .filter(Boolean).join(' ').toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
+  function recompute(){
+    coletas = records.filter(r => r.tipo === 'coleta');
+    entregas = records.filter(r => r.tipo === 'entrega');
+    coletaById = {}; entregaById = {}; entregasByColeta = {};
+    coletas.forEach(c => { coletaById[c.id] = c; });
+    entregas.forEach(e => {
+      entregaById[e.id] = e;
+      (entregasByColeta[e.coletaId] = entregasByColeta[e.coletaId] || []).push(e);
     });
   }
-  function sortValue(r, f){
-    const c = col(r), e = ent(r) || {};
-    switch (f) {
-      case 'coletaData':  return (c.data || '') + ' ' + (c.horario || '');
-      case 'cliente':     return (c.cliente || '').toLowerCase();
-      case 'qtd':         return qtdColetada(r);
-      case 'entregaData': return e.data ? e.data + ' ' + (e.horario || '') : '';
-      case 'destino':     return (e.destino || '').toLowerCase();
-      case 'status':      return statusDe(r);
-      case 'saldo':       return saldoDe(r);
-      case 'dias':        return diasPendentes(r) ?? -1;
-      default:            return '';
+
+  /* ---------- configuração das duas listas ---------- */
+  const CFG = {
+    coletas: {
+      novo: 'Nova coleta',
+      placeholder: 'Buscar por cliente, motorista, placa ou destinatário…',
+      chips: [['pendentes', 'Pallets pendentes'], ['fechadas', 'Somente concluídas']],
+      fields: [
+        ['dataIni', 'Coleta de', 'date'], ['dataFim', 'Coleta até', 'date'],
+        ['cliente', 'Cliente', 'select'], ['motorista', 'Motorista', 'select'], ['placa', 'Placa', 'select'],
+        ['dono', 'Pallets de quem', 'select', [['cliente', 'Do cliente'], ['portoex', 'Da PortoEX']]],
+        ['tipo', 'Tipo de pallet', 'select', [['pbr', 'PBR'], ['descartavel', 'Descartável']]],
+        ['status', 'Situação', 'select', [['aguardando_entrega', 'Aguardando entrega'], ['entrega_parcial', 'Entrega parcial'], ['entregue', 'Entregue (a devolver)'], ['concluida', 'Concluída']]]
+      ],
+      cols: [['Coleta', 'data'], ['Cliente / Remetente', 'cliente'], ['Motorista / Placa', ''], ['Pallets', 'qtd'], ['Entregues', 'entregue'], ['Situação', 'status'], ['Saldo', 'saldo'], ['Dias', 'dias'], ['Obs.', ''], ['', '']]
+    },
+    entregas: {
+      novo: 'Nova entrega',
+      placeholder: 'Buscar por destinatário, cliente, motorista, placa ou parceiro…',
+      chips: [['pendentes', 'Pallets pendentes'], ['fechadas', 'Somente devolvidas']],
+      fields: [
+        ['dataIni', 'Entrega de', 'date'], ['dataFim', 'Entrega até', 'date'],
+        ['cliente', 'Cliente (da coleta)', 'select'], ['destinatario', 'Destinatário', 'select'], ['motorista', 'Motorista', 'select'], ['placa', 'Placa', 'select'],
+        ['resp', 'Retorno por', 'select', [['portoex', 'PortoEX'], ['controladoria', 'Controladoria']]],
+        ['dono', 'Pallets de quem', 'select', [['cliente', 'Do cliente'], ['portoex', 'Da PortoEX']]],
+        ['tipo', 'Tipo de pallet', 'select', [['pbr', 'PBR'], ['descartavel', 'Descartável']]],
+        ['status', 'Situação', 'select', [['com_portoex', 'Com a PortoEX'], ['no_destino', 'No destino'], ['parcial', 'Parcialmente devolvido'], ['devolvido', 'Devolvido / retornou à base']]]
+      ],
+      cols: [['Entrega', 'data'], ['Coleta de origem', 'coleta'], ['Destinatário', 'destinatario'], ['Pallets', 'qtd'], ['Retorno por', 'resp'], ['Situação', 'status'], ['Saldo', 'saldo'], ['Dias', 'dias'], ['Obs.', ''], ['', '']]
+    }
+  };
+
+  function dynValues(key, field){
+    if (key === 'coletas') {
+      if (field === 'cliente') return uniq(coletas.map(c => c.cliente));
+      if (field === 'motorista') return uniq(coletas.map(c => c.motorista));
+      if (field === 'placa') return uniq(coletas.map(c => c.placa));
+    } else {
+      if (field === 'cliente') return uniq(entregas.map(e => (coletaDe(e) || {}).cliente));
+      if (field === 'destinatario') return uniq(entregas.map(e => e.destinatario));
+      if (field === 'motorista') return uniq(entregas.map(e => e.motorista));
+      if (field === 'placa') return uniq(entregas.map(e => e.placa));
+    }
+    return [];
+  }
+
+  function buildShell(key){
+    const cfg = CFG[key];
+    const chips = cfg.chips.map(([k, l], i) => `<button class="chip-toggle${i === 0 ? ' destaque' : ''}" data-chip="${k}">${l}</button>`).join('');
+    const fields = cfg.fields.map(([k, l, type]) => type === 'date'
+      ? `<div class="filter-field"><label>${l}</label><input type="date" data-f="${k}"></div>`
+      : `<div class="filter-field"><label>${l}</label><select data-f="${k}"><option value="">${(k === 'placa' || k === 'status') ? 'Todas' : 'Todos'}</option></select></div>`
+    ).join('');
+    const ths = cfg.cols.map(([l, s]) => s ? `<th data-sort="${s}">${l}<span class="arrow" id="arrow-${key}-${s}"></span></th>` : `<th>${l}</th>`).join('');
+    $('view-' + key).innerHTML = `
+      <div class="toolbar">
+        <input class="search" id="search-${key}" placeholder="${cfg.placeholder}">
+        <button class="btn btn-primary" data-new="${key}">+ ${cfg.novo}</button>
+        <button class="btn btn-ghost" data-export="${key}">Exportar CSV</button>
+      </div>
+      <div class="filters-bar">
+        ${chips}
+        ${fields}
+        ${key === 'entregas' ? '<span class="filter-chip" id="coletaChip" style="display:none"><span id="coletaChipTxt"></span><button type="button" id="coletaChipX" aria-label="Remover filtro">&times;</button></span>' : ''}
+        <button class="filters-clear" data-clear="${key}">Limpar filtros</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data" id="table-${key}" style="display:none">
+          <thead><tr>${ths}</tr></thead>
+          <tbody id="tbody-${key}"></tbody>
+        </table>
+        <div class="empty" id="empty-${key}"><div class="big"></div><div class="small"></div></div>
+        <div class="pagination" id="pag-${key}" style="display:none">
+          <div class="info" id="pageInfo-${key}"></div>
+          <div class="controls"><button data-prev="${key}">Anterior</button><button data-next="${key}">Próxima</button></div>
+        </div>
+      </div>`;
+
+    const root = $('view-' + key), st = VS[key];
+    $('search-' + key).oninput = () => { st.page = 1; renderTable(key); };
+    root.querySelectorAll('[data-f]').forEach(el => el.onchange = () => { st.f[el.dataset.f] = el.value; st.page = 1; renderTable(key); });
+    root.querySelectorAll('[data-chip]').forEach(b => b.onclick = () => {
+      st.f.chip = st.f.chip === b.dataset.chip ? '' : b.dataset.chip; st.page = 1; syncFilterUI(key); renderTable(key);
+    });
+    root.querySelector('[data-clear]').onclick = () => { st.f = defFilters(); $('search-' + key).value = ''; st.page = 1; syncFilterUI(key); renderTable(key); };
+    root.querySelector('[data-new]').onclick = () => key === 'coletas' ? openColeta(null) : openEntrega(null, null);
+    root.querySelector('[data-export]').onclick = () => exportCSV(key);
+    root.querySelectorAll('th[data-sort]').forEach(th => th.onclick = () => {
+      const f = th.dataset.sort;
+      if (st.sort.field === f) st.sort.dir = st.sort.dir === 'asc' ? 'desc' : 'asc';
+      else { st.sort.field = f; st.sort.dir = 'asc'; }
+      renderTable(key);
+    });
+    root.querySelector('[data-prev]').onclick = () => { if (st.page > 1) { st.page--; renderTable(key); } };
+    root.querySelector('[data-next]').onclick = () => { st.page++; renderTable(key); };
+    $('tbody-' + key).addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-act]');
+      if (!b) return;
+      (key === 'coletas' ? actColeta : actEntrega)(b.dataset.act, b.dataset.id);
+    });
+    if (key === 'entregas') $('coletaChipX').onclick = () => { st.f.coletaId = ''; st.page = 1; syncFilterUI(key); renderTable(key); };
+  }
+
+  function refreshSelects(key){
+    CFG[key].fields.forEach(([k, , type, stat]) => {
+      if (type !== 'select') return;
+      const sel = $('view-' + key).querySelector(`[data-f="${k}"]`);
+      const cur = sel.value;
+      const opts = stat ? stat : dynValues(key, k).map(v => [v, v]);
+      sel.innerHTML = `<option value="">${(k === 'placa' || k === 'status') ? 'Todas' : 'Todos'}</option>` + opts.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('');
+      if (opts.some(([v]) => v === cur)) sel.value = cur;
+    });
+  }
+  function syncFilterUI(key){
+    const st = VS[key], root = $('view-' + key);
+    root.querySelectorAll('[data-f]').forEach(el => { el.value = st.f[el.dataset.f] || ''; });
+    root.querySelectorAll('[data-chip]').forEach(b => b.classList.toggle('active', st.f.chip === b.dataset.chip));
+    if (key === 'entregas') {
+      const c = coletaById[st.f.coletaId];
+      $('coletaChip').style.display = st.f.coletaId ? 'inline-flex' : 'none';
+      $('coletaChipTxt').textContent = st.f.coletaId ? `Coleta: ${c ? fmtDate(c.data) + ' · ' + c.cliente : 'removida'}` : '';
     }
   }
-  function sortRecords(list){
-    const mult = sortState.dir === 'asc' ? 1 : -1;
-    return list.slice().sort((a,b) => {
-      const va = sortValue(a, sortState.field), vb = sortValue(b, sortState.field);
-      if (va < vb) return -1 * mult;
-      if (va > vb) return 1 * mult;
-      return 0;
+  function populateDatalists(){
+    const clientes = uniq(coletas.map(c => c.cliente));
+    const destinos = uniq(entregas.map(e => e.destinatario));
+    fillDatalist($('nomesList'), uniq([...clientes, ...destinos]));
+    fillDatalist($('motoristasList'), uniq([...coletas.map(c => c.motorista), ...entregas.map(e => e.motorista)]));
+    fillDatalist($('placasList'), uniq([...coletas.map(c => c.placa), ...entregas.map(e => e.placa)]));
+    fillDatalist($('parceirosList'), uniq(entregas.map(e => e.parceiro)));
+  }
+  function fillDatalist(dl, values){ dl.innerHTML = values.map(v => `<option value="${esc(v)}">`).join(''); }
+
+  /* ---------- filtros e ordenação ---------- */
+  function coletaPassa(c, f, q){
+    const saldo = saldoColeta(c), st = statusColeta(c);
+    if (f.chip === 'pendentes' && saldo <= 0) return false;
+    if (f.chip === 'fechadas' && saldo > 0) return false;
+    if (f.dataIni && (c.data || '') < f.dataIni) return false;
+    if (f.dataFim && (c.data || '') > f.dataFim) return false;
+    if (f.cliente && c.cliente !== f.cliente) return false;
+    if (f.motorista && c.motorista !== f.motorista) return false;
+    if (f.placa && c.placa !== f.placa) return false;
+    if (f.dono && donoDe(c) !== f.dono) return false;
+    if (f.tipo && tipoDe(c) !== f.tipo) return false;
+    if (f.status && st !== f.status) return false;
+    if (q) {
+      const ents = entregasDe(c);
+      const hay = [c.cliente, c.endereco, c.motorista, c.placa, ...ents.map(e => e.destinatario), ...ents.map(e => e.parceiro)].filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }
+  function entregaPassa(e, f, q){
+    const c = coletaDe(e) || {};
+    const saldo = saldoEntrega(e), st = statusEntrega(e);
+    if (f.chip === 'pendentes' && saldo <= 0) return false;
+    if (f.chip === 'fechadas' && saldo > 0) return false;
+    if (f.coletaId && e.coletaId !== f.coletaId) return false;
+    if (f.dataIni && (e.data || '') < f.dataIni) return false;
+    if (f.dataFim && (e.data || '') > f.dataFim) return false;
+    if (f.cliente && c.cliente !== f.cliente) return false;
+    if (f.destinatario && e.destinatario !== f.destinatario) return false;
+    if (f.motorista && e.motorista !== f.motorista) return false;
+    if (f.placa && e.placa !== f.placa) return false;
+    if (f.resp && respDe(e) !== f.resp) return false;
+    if (f.dono && donoDe(c) !== f.dono) return false;
+    if (f.tipo && tipoDe(c) !== f.tipo) return false;
+    if (f.status && st !== f.status) return false;
+    if (q) {
+      const hay = [e.destinatario, e.motorista, e.placa, e.parceiro, c.cliente].filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }
+  function sortValue(key, r, field){
+    if (key === 'coletas') {
+      switch (field) {
+        case 'data': return (r.data || '') + ' ' + (r.horario || '');
+        case 'cliente': return (r.cliente || '').toLowerCase();
+        case 'qtd': return qtdColetada(r);
+        case 'entregue': return qtdEntregue(r);
+        case 'status': return statusColeta(r);
+        case 'saldo': return saldoColeta(r);
+        case 'dias': return diasColeta(r) ?? -1;
+      }
+    } else {
+      const c = coletaDe(r) || {};
+      switch (field) {
+        case 'data': return (r.data || '') + ' ' + (r.horario || '');
+        case 'coleta': return (c.cliente || '').toLowerCase() + (c.data || '');
+        case 'destinatario': return (r.destinatario || '').toLowerCase();
+        case 'qtd': return Number(r.qtd) || 0;
+        case 'resp': return respDe(r);
+        case 'status': return statusEntrega(r);
+        case 'saldo': return saldoEntrega(r);
+        case 'dias': return diasEntrega(r) ?? -1;
+      }
+    }
+    return '';
+  }
+  function getList(key){
+    const st = VS[key];
+    const q = ($('search-' + key).value || '').trim().toLowerCase();
+    const base = key === 'coletas' ? coletas : entregas;
+    const pass = key === 'coletas' ? coletaPassa : entregaPassa;
+    const mult = st.sort.dir === 'asc' ? 1 : -1;
+    return base.filter(r => pass(r, st.f, q)).sort((a, b) => {
+      const va = sortValue(key, a, st.sort.field), vb = sortValue(key, b, st.sort.field);
+      return va < vb ? -1 * mult : (va > vb ? 1 * mult : 0);
     });
   }
 
-  /* ---------- listas de sugestão e filtros ---------- */
-  function fillSelect(sel, values, allLabel){
-    const current = sel.value;
-    sel.innerHTML = `<option value="">${allLabel}</option>` + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
-    if (values.includes(current)) sel.value = current;
-  }
-  function fillDatalist(dl, values){
-    dl.innerHTML = values.map(v => `<option value="${esc(v)}">`).join('');
-  }
-  function populateOptions(){
-    const clientes = uniqueSorted(records.map(r => col(r).cliente));
-    const destinos = uniqueSorted(records.map(r => ent(r) && ent(r).destino));
-    const motoristas = uniqueSorted(records.flatMap(r => [col(r).motorista, ent(r) && ent(r).motorista]));
-    const placas = uniqueSorted(records.flatMap(r => [col(r).placa, ent(r) && ent(r).placa]));
-    fillSelect($('fCliente'), clientes, 'Todos');
-    fillSelect($('fDestino'), destinos, 'Todos');
-    fillSelect($('fMotorista'), motoristas, 'Todos');
-    fillSelect($('fPlaca'), placas, 'Todas');
-    fillDatalist($('nomesList'), uniqueSorted([...clientes, ...destinos]));
-    fillDatalist($('motoristasList'), motoristas);
-    fillDatalist($('placasList'), placas);
-  }
-  function syncFilterUI(){
-    $('fDataIni').value = filters.dataIni;
-    $('fDataFim').value = filters.dataFim;
-    $('fCliente').value = filters.cliente;
-    $('fDestino').value = filters.destino;
-    $('fMotorista').value = filters.motorista;
-    $('fPlaca').value = filters.placa;
-    $('fStatus').value = filters.status;
-    $('fDono').value = filters.dono;
-    $('chipPendentes').classList.toggle('active', filters.somentePendentes);
-    $('chipDevolvidos').classList.toggle('active', filters.somenteDevolvidos);
-    page = 1;
-  }
-  function setStatusFilter(status){
-    filters = defaultFilters(); filters.status = status; syncFilterUI();
-  }
-  function setPendentesFilter(){
-    filters = defaultFilters(); filters.somentePendentes = true; syncFilterUI();
-  }
-
-  /* ---------- tabela ---------- */
+  /* ---------- tabelas ---------- */
   const stack = (main, sub) => `<div class="stack"><span class="main">${main}</span>${sub ? `<span class="sub">${sub}</span>` : ''}</div>`;
+  const placaPill = (p) => p ? `<span class="placa-pill">${esc(p)}</span>` : '';
+  const btn = (act, id, label, cls, title) => `<button class="btn ${cls} btn-sm" data-act="${act}" data-id="${id}"${title ? ` title="${esc(title)}"` : ''}>${label}</button>`;
+  const diasHtml = (d) => d === null ? '<span class="dias-tag">—</span>' : `<span class="dias-tag${d > ALERTA_DIAS ? ' alert' : ''}">${d}d</span>`;
+  const tipoTag = (c) => `<span class="tipo-tag">${TIPO_LABEL[tipoDe(c)]}</span>`;
+  const ownTag = (d) => `<span class="own-tag ${d}">${d === 'portoex' ? 'da PortoEX' : 'do cliente'}</span>`;
 
-  function renderTable(){
-    const sorted = sortRecords(getFilteredRecords());
-    const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-    if (page > totalPages) page = totalPages;
-    const items = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  function coletaRow(c){
+    const d = donoDe(c), st = statusColeta(c), saldo = saldoColeta(c), dev = devolvidoColeta(c);
+    const ents = entregasDe(c), falta = aEntregar(c), sub = statusSubColeta(c);
+    return `
+      <tr>
+        <td data-label="Coleta">${stack(fmtDate(c.data), esc(c.horario))}</td>
+        <td data-label="Cliente / Remetente">${stack(esc(c.cliente) || '—', esc(c.endereco))}</td>
+        <td data-label="Motorista / Placa">${stack(esc(c.motorista) || '—', placaPill(c.placa))}</td>
+        <td data-label="Pallets" class="num"><div class="stack"><span class="main">${qtdColetada(c)}</span><span class="tag-row">${tipoTag(c)}${ownTag(d)}</span></div></td>
+        <td data-label="Entregues"><div class="stack"><span class="main">${qtdEntregue(c)} de ${qtdColetada(c)}</span>${ents.length ? `<button class="link-btn" data-act="verent" data-id="${c.id}">${ents.length} entrega(s)</button>` : '<span class="sub">nenhuma entrega</span>'}</div></td>
+        <td data-label="Situação">${stack(badgeHtml(st, d), esc(sub))}</td>
+        <td data-label="Saldo"><div class="stack"><span class="main accent">${saldo}</span>${saldo > 0 ? `<span class="sub">${fmtBRL(valorSaldoColeta(c))}</span>` : ''}${dev > 0 ? `<span class="sub">devolvido ${dev}</span>` : ''}</div></td>
+        <td data-label="Dias">${diasHtml(diasColeta(c))}</td>
+        <td data-label="Obs." class="obs">${esc(c.obs) || '—'}</td>
+        <td class="actions"><div class="row-actions">
+          ${falta > 0 ? btn('ent', c.id, 'Registrar entrega', 'btn-primary') : ''}
+          ${falta > 0 ? btn('dev', c.id, d === 'portoex' ? 'Retorno da sobra' : 'Devolver sobra', 'btn-outline', 'Pallets que não foram entregues e voltaram direto pro ' + (d === 'portoex' ? 'a base' : 'cliente')) : ''}
+          ${btn('edit', c.id, 'Editar', 'btn-ghost')}
+          ${btn('del', c.id, 'Excluir', 'btn-danger')}
+        </div></td>
+      </tr>`;
+  }
+  function entregaRow(e){
+    const c = coletaDe(e) || {}, d = donoDe(c), st = statusEntrega(e), saldo = saldoEntrega(e), dev = devQtd(e);
+    const resp = respDe(e), sub = statusSubEntrega(e);
+    const respSub = e.porParceiro ? (e.parceiro ? 'parceiro: ' + esc(e.parceiro) : 'entrega por parceiro') : '';
+    return `
+      <tr>
+        <td data-label="Entrega">${stack(fmtDate(e.data), esc(e.horario))}</td>
+        <td data-label="Coleta de origem">${stack(esc(c.cliente) || 'Coleta removida', c.data ? 'coleta ' + fmtDate(c.data) : '')}</td>
+        <td data-label="Destinatário">${stack(esc(e.destinatario) || '—', esc([e.motorista, e.placa].filter(Boolean).join(' · ')))}</td>
+        <td data-label="Pallets" class="num"><div class="stack"><span class="main">${Number(e.qtd) || 0}</span><span class="tag-row">${tipoTag(c)}${ownTag(d)}</span></div></td>
+        <td data-label="Retorno por">${stack(`<span class="resp-tag ${resp}">${resp === 'controladoria' ? 'Controladoria' : 'PortoEX'}</span>`, respSub)}</td>
+        <td data-label="Situação">${stack(badgeHtml(st, d), esc(sub))}</td>
+        <td data-label="Saldo"><div class="stack"><span class="main accent">${saldo}</span>${saldo > 0 ? `<span class="sub">${fmtBRL(valorSaldoEntrega(e))}</span>` : ''}${dev > 0 ? `<span class="sub">devolvido ${dev}</span>` : ''}</div></td>
+        <td data-label="Dias">${diasHtml(diasEntrega(e))}</td>
+        <td data-label="Obs." class="obs">${esc(e.obs) || '—'}</td>
+        <td class="actions"><div class="row-actions">
+          ${saldo > 0 ? btn('dev', e.id, d === 'portoex' ? 'Registrar retorno à base' : 'Registrar devolução', 'btn-primary') : ''}
+          ${btn('edit', e.id, 'Editar', 'btn-ghost')}
+          ${btn('del', e.id, 'Excluir', 'btn-danger')}
+        </div></td>
+      </tr>`;
+  }
 
-    document.querySelectorAll('.arrow').forEach(a => a.textContent = '');
-    const arrow = $('arrow-' + sortState.field);
-    if (arrow) arrow.textContent = sortState.dir === 'asc' ? '↑' : '↓';
+  function renderTable(key){
+    const st = VS[key];
+    const list = getList(key);
+    const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    if (st.page > totalPages) st.page = totalPages;
+    const items = list.slice((st.page - 1) * PAGE_SIZE, st.page * PAGE_SIZE);
+    const total = (key === 'coletas' ? coletas : entregas).length;
 
-    const table = $('table'), empty = $('emptyState'), pag = $('pagination');
-    if (records.length === 0) {
+    document.querySelectorAll(`[id^="arrow-${key}-"]`).forEach(a => a.textContent = '');
+    const arrow = $(`arrow-${key}-${st.sort.field}`);
+    if (arrow) arrow.textContent = st.sort.dir === 'asc' ? '↑' : '↓';
+
+    const table = $('table-' + key), empty = $('empty-' + key), pag = $('pag-' + key);
+    if (total === 0) {
+      $('tbody-' + key).innerHTML = '';
       table.style.display = 'none'; empty.style.display = 'block'; pag.style.display = 'none';
-      $('emptyBig').textContent = 'Nenhum registro ainda';
-      $('emptySmall').textContent = 'Cadastre a primeira coleta clicando em "Novo registro". Tudo fica salvo automaticamente e disponível para toda a equipe.';
+      empty.querySelector('.big').textContent = key === 'coletas' ? 'Nenhuma coleta ainda' : 'Nenhuma entrega ainda';
+      empty.querySelector('.small').textContent = key === 'coletas'
+        ? 'Cadastre a primeira coleta clicando em "Nova coleta". Tudo fica salvo automaticamente e disponível para toda a equipe.'
+        : 'Cadastre primeiro uma coleta. Depois, registre aqui cada entrega ligada a ela, com a quantidade de pallets entregues.';
       return;
     }
-    if (sorted.length === 0) {
+    if (list.length === 0) {
+      $('tbody-' + key).innerHTML = '';
       table.style.display = 'none'; empty.style.display = 'block'; pag.style.display = 'none';
-      $('emptyBig').textContent = 'Nenhum registro encontrado';
-      $('emptySmall').textContent = 'Ajuste os filtros ou a busca para ver outros registros.';
+      empty.querySelector('.big').textContent = 'Nenhum registro encontrado';
+      empty.querySelector('.small').textContent = 'Ajuste os filtros ou a busca para ver outros registros.';
       return;
     }
     table.style.display = ''; empty.style.display = 'none';
-    pag.style.display = sorted.length > PAGE_SIZE ? 'flex' : 'none';
+    pag.style.display = list.length > PAGE_SIZE ? 'flex' : 'none';
+    $('tbody-' + key).innerHTML = items.map(key === 'coletas' ? coletaRow : entregaRow).join('');
+    $('pageInfo-' + key).textContent = `Página ${st.page} de ${totalPages} · ${list.length} registro(s)`;
+    $('view-' + key).querySelector('[data-prev]').disabled = st.page <= 1;
+    $('view-' + key).querySelector('[data-next]').disabled = st.page >= totalPages;
+  }
 
-    $('tbody').innerHTML = items.map(r => {
-      const c = col(r), e = ent(r);
-      const saldo = saldoDe(r), dev = qtdDevolvida(r), status = statusDe(r), dias = diasPendentes(r);
-      const diasHtml = dias === null ? '<span class="dias-tag">—</span>' : `<span class="dias-tag${dias > ALERTA_DIAS ? ' alert' : ''}">${dias}d</span>`;
-      const placaPill = (p) => p ? `<span class="placa-pill">${esc(p)}</span>` : '';
-      const entSub = e ? esc([e.motorista, e.placa].filter(Boolean).join(' · ')) : '';
-      const sub = statusSub(r);
-      return `
-        <tr>
-          <td data-label="Coleta">${stack(fmtDate(c.data), esc(c.horario))}</td>
-          <td data-label="Cliente / Remetente">${stack(esc(c.cliente) || '—', esc(c.endereco))}</td>
-          <td data-label="Motorista / Placa">${stack(esc(c.motorista) || '—', placaPill(c.placa))}</td>
-          <td data-label="Pallets" class="num"><div class="stack"><span class="main">${qtdColetada(r)}</span><span class="own-tag ${donoDe(r)}">${donoDe(r) === 'portoex' ? 'da PortoEX' : 'do cliente'}</span></div></td>
-          <td data-label="Entrega">${e ? stack(fmtDate(e.data), esc(e.horario)) : '<span class="dias-tag">Aguardando</span>'}</td>
-          <td data-label="Destinatário">${e ? stack(esc(e.destino) || '—', entSub) : '<span class="dias-tag">—</span>'}</td>
-          <td data-label="Situação">${stack(badgeHtml(status, donoDe(r)), esc(sub))}</td>
-          <td data-label="Saldo"><div class="stack"><span class="main accent">${saldo}</span>${dev > 0 ? `<span class="sub">devolvido ${dev}</span>` : ''}</div></td>
-          <td data-label="Dias">${diasHtml}</td>
-          <td data-label="Obs." class="obs">${esc(r.obs) || '—'}</td>
-          <td class="actions">
-            <div class="row-actions">
-              ${!e ? `<button class="btn btn-primary btn-sm" data-ent="${r.id}">Registrar entrega</button>` : ''}
-              ${e && saldo > 0 ? `<button class="btn btn-primary btn-sm" data-dev="${r.id}">${donoDe(r) === 'portoex' ? 'Registrar retorno à base' : 'Registrar devolução'}</button>` : ''}
-              <button class="btn btn-ghost btn-sm" data-edit="${r.id}">Editar</button>
-              <button class="btn btn-danger btn-sm" data-del="${r.id}">Excluir</button>
-            </div>
-          </td>
-        </tr>`;
-    }).join('');
-
-    $('tbody').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openDrawer(b.dataset.edit, false));
-    $('tbody').querySelectorAll('[data-ent]').forEach(b => b.onclick = () => openDrawer(b.dataset.ent, true));
-    $('tbody').querySelectorAll('[data-del]').forEach(b => b.onclick = () => removeRecord(b.dataset.del));
-    $('tbody').querySelectorAll('[data-dev]').forEach(b => b.onclick = () => openDevolucaoModal(b.dataset.dev));
-
-    $('pageInfo').textContent = `Página ${page} de ${totalPages} · ${sorted.length} registro(s)`;
-    $('btnPrevPage').disabled = page <= 1;
-    $('btnNextPage').disabled = page >= totalPages;
+  /* ---------- ações das linhas ---------- */
+  function actColeta(act, id){
+    if (act === 'edit') return openColeta(id);
+    if (act === 'ent') return openEntrega(null, id);
+    if (act === 'dev') return openDevolucao('coleta', id);
+    if (act === 'del') return removeColeta(id);
+    if (act === 'verent') return goEntregas({ coletaId: id });
+  }
+  function actEntrega(act, id){
+    if (act === 'edit') return openEntrega(id, null);
+    if (act === 'dev') return openDevolucao('entrega', id);
+    if (act === 'del') return removeEntrega(id);
+  }
+  function goColetas(over){
+    VS.coletas.f = { ...defFilters(), ...over }; VS.coletas.page = 1; $('search-coletas').value = '';
+    syncFilterUI('coletas'); switchView('coletas');
+  }
+  function goEntregas(over){
+    VS.entregas.f = { ...defFilters(), ...over }; VS.entregas.page = 1; $('search-entregas').value = '';
+    syncFilterUI('entregas'); switchView('entregas');
   }
 
   /* ---------- dashboard ---------- */
   function renderDashboard(){
-    const sumOf = (list, fn) => list.reduce((s, r) => s + fn(r), 0);
-    const dosClientes = records.filter(r => donoDe(r) === 'cliente');
-    const daPortoex = records.filter(r => donoDe(r) === 'portoex');
-    // Pallets dos clientes (a devolver ao cliente)
-    $('stColetado').textContent = sumOf(dosClientes, qtdColetada);
-    $('stDevolvido').textContent = sumOf(dosClientes, qtdDevolvida);
-    $('stSaldo').textContent = sumOf(dosClientes, saldoDe);
-    $('stPortoex').textContent = sumOf(dosClientes, r => localPaletes(r) === 'portoex' ? saldoDe(r) : 0);
-    $('stDestino').textContent = sumOf(dosClientes, r => localPaletes(r) === 'destino' ? saldoDe(r) : 0);
-    $('stClientes').textContent = new Set(dosClientes.filter(r => saldoDe(r) > 0).map(r => col(r).cliente || 'Sem cliente')).size;
-    // Pallets da PortoEX (precisam voltar pra base)
-    $('stOwnFora').textContent = sumOf(daPortoex, saldoDe);
-    $('stOwnPortoex').textContent = sumOf(daPortoex, r => localPaletes(r) === 'portoex' ? saldoDe(r) : 0);
-    $('stOwnDestino').textContent = sumOf(daPortoex, r => localPaletes(r) === 'destino' ? saldoDe(r) : 0);
-    $('stOwnRetornaram').textContent = sumOf(daPortoex, qtdDevolvida);
-    renderAlerts();
-    renderRanking();
+    const part = (list) => {
+      const o = { colet: 0, devol: 0, saldo: 0, aguard: 0, voltaram: 0, destino: 0, valor: 0 };
+      list.forEach(c => {
+        o.colet += qtdColetada(c); o.devol += devolvidoColeta(c); o.saldo += saldoColeta(c); o.aguard += aEntregar(c); o.valor += valorSaldoColeta(c);
+        entregasDe(c).forEach(e => { const s = saldoEntrega(e); if (e.paletesFicaram === 'destino') o.destino += s; else o.voltaram += s; });
+      });
+      return o;
+    };
+    const A = part(coletas.filter(c => donoDe(c) === 'cliente'));
+    const B = part(coletas.filter(c => donoDe(c) === 'portoex'));
+    $('stColetado').textContent = A.colet;
+    $('stDevolvido').textContent = A.devol;
+    $('stSaldo').textContent = A.saldo;
+    $('stClientes').textContent = new Set(coletas.filter(c => donoDe(c) === 'cliente' && saldoColeta(c) > 0).map(c => c.cliente || 'Sem cliente')).size;
+    $('stAguardando').textContent = A.aguard;
+    $('stVoltaram').textContent = A.voltaram;
+    $('stDestino').textContent = A.destino;
+    $('stOwnFora').textContent = B.saldo;
+    $('stOwnAguardando').textContent = B.aguard;
+    $('stOwnVoltaram').textContent = B.voltaram;
+    $('stOwnDestino').textContent = B.destino;
+    $('stOwnRetornaram').textContent = B.devol;
+    $('stValorClientes').textContent = fmtBRL(A.valor);
+    $('stOwnValor').textContent = fmtBRL(B.valor);
+
+    const ctrl = entregas.filter(e => respDe(e) === 'controladoria' && saldoEntrega(e) > 0);
+    $('stCtrlSaldo').textContent = sumOf(ctrl, saldoEntrega);
+    $('stCtrlEntregas').textContent = ctrl.length;
+    $('stCtrlValor').textContent = fmtBRL(sumOf(ctrl, valorSaldoEntrega));
+    $('stCtrlParceiros').textContent = new Set(ctrl.map(e => (e.parceiro || '').trim() || 'Sem parceiro informado')).size;
+
+    renderAlerts(ctrl);
+    renderRankings();
+    renderTipoTable();
     if ($('view-dashboard').classList.contains('active')) renderCharts();
   }
 
-  function renderAlerts(){
-    if (records.length === 0) {
+  function renderAlerts(ctrl){
+    if (coletas.length === 0 && entregas.length === 0) {
       $('alertsGrid').innerHTML = '<div class="alerts-empty">Sem registros ainda — as pendências aparecem aqui automaticamente.</div>';
       return;
     }
-    const count = (fn) => records.filter(fn).length;
+    const n = (list, fn) => list.filter(fn).length;
     const items = [
-      { label: 'Coletas aguardando entrega', n: count(r => statusDe(r) === 'aguardando_entrega'), go: () => setStatusFilter('aguardando_entrega') },
-      { label: 'Pallets que ficaram no destinatário', n: count(r => statusDe(r) === 'no_destino'), go: () => setStatusFilter('no_destino') },
-      { label: `Pallets pendentes há mais de ${ALERTA_DIAS} dias`, n: count(r => (diasPendentes(r) ?? 0) > ALERTA_DIAS), go: () => setPendentesFilter() },
-      { label: 'Devoluções parciais', n: count(r => statusDe(r) === 'parcial'), go: () => setStatusFilter('parcial') },
+      { label: 'Coletas aguardando entrega', n: n(coletas, c => statusColeta(c) === 'aguardando_entrega'), go: () => goColetas({ status: 'aguardando_entrega' }) },
+      { label: 'Coletas com entrega parcial', n: n(coletas, c => statusColeta(c) === 'entrega_parcial'), go: () => goColetas({ status: 'entrega_parcial' }) },
+      { label: 'Pallets que ficaram no destinatário', n: n(entregas, e => statusEntrega(e) === 'no_destino'), go: () => goEntregas({ status: 'no_destino' }) },
+      { label: 'Retorno sob responsabilidade da Controladoria', n: ctrl.length, go: () => goEntregas({ resp: 'controladoria', chip: 'pendentes' }) },
+      { label: `Pallets pendentes há mais de ${ALERTA_DIAS} dias`, n: n(coletas, c => (diasColeta(c) ?? 0) > ALERTA_DIAS), go: () => goColetas({ chip: 'pendentes' }) },
+      { label: 'Devoluções parciais', n: n(entregas, e => statusEntrega(e) === 'parcial'), go: () => goEntregas({ status: 'parcial' }) }
     ].filter(i => i.n > 0);
-
     if (items.length === 0) {
       $('alertsGrid').innerHTML = '<div class="alerts-empty">Nenhuma pendência de atenção no momento.</div>';
       return;
     }
     $('alertsGrid').innerHTML = items.map((i, idx) => `
-      <div class="alert-card" data-alert="${idx}">
-        <div class="txt">${esc(i.label)}</div>
-        <div class="cnt">${i.n}</div>
-      </div>`).join('');
-    $('alertsGrid').querySelectorAll('[data-alert]').forEach(el => {
-      el.onclick = () => { items[Number(el.dataset.alert)].go(); switchView('controle'); };
-    });
+      <div class="alert-card" data-alert="${idx}"><div class="txt">${esc(i.label)}</div><div class="cnt">${i.n}</div></div>`).join('');
+    $('alertsGrid').querySelectorAll('[data-alert]').forEach(el => { el.onclick = () => items[Number(el.dataset.alert)].go(); });
   }
 
   function aggregateByCliente(){
     const by = {};
-    records.forEach(r => {
-      const saldo = saldoDe(r);
-      if (saldo <= 0 || donoDe(r) !== 'cliente') return;   // só pallets de clientes
-      const nome = col(r).cliente || 'Sem cliente';
-      if (!by[nome]) by[nome] = { saldo: 0, portoex: 0, destino: 0, dias: 0 };
-      by[nome].saldo += saldo;
-      by[nome][localPaletes(r)] += saldo;
-      by[nome].dias = Math.max(by[nome].dias, diasPendentes(r) || 0);
+    coletas.forEach(c => {
+      if (donoDe(c) !== 'cliente') return;
+      const saldo = saldoColeta(c);
+      if (saldo <= 0) return;
+      const nome = c.cliente || 'Sem cliente';
+      const o = by[nome] = by[nome] || { saldo: 0, valor: 0, aguard: 0, voltaram: 0, destino: 0, dias: 0 };
+      o.saldo += saldo; o.valor += valorSaldoColeta(c); o.aguard += aEntregar(c);
+      entregasDe(c).forEach(e => { const s = saldoEntrega(e); if (e.paletesFicaram === 'destino') o.destino += s; else o.voltaram += s; });
+      o.dias = Math.max(o.dias, diasColeta(c) || 0);
     });
-    return Object.entries(by).sort((a,b) => b[1].saldo - a[1].saldo);
+    return Object.entries(by).sort((a, b) => b[1].saldo - a[1].saldo);
   }
 
-  function renderRanking(){
+  function renderRankings(){
     const rows = aggregateByCliente().slice(0, 10);
     $('rankEmpty').style.display = rows.length ? 'none' : 'block';
     $('rankBody').innerHTML = rows.map(([nome, v]) => `
       <tr>
         <td>${esc(nome)}</td>
         <td class="num accent">${v.saldo}</td>
-        <td class="num">${v.portoex}</td>
+        <td class="num">${fmtBRL(v.valor)}</td>
+        <td class="num">${v.aguard}</td>
+        <td class="num">${v.voltaram}</td>
         <td class="num${v.destino > 0 ? ' warn' : ''}">${v.destino}</td>
         <td class="num" style="color:var(--text-dim)">${v.dias}d</td>
       </tr>`).join('');
+
+    const bp = {};
+    entregas.forEach(e => {
+      if (respDe(e) !== 'controladoria') return;
+      const s = saldoEntrega(e);
+      if (s <= 0) return;
+      const nome = (e.parceiro || '').trim() || 'Sem parceiro informado';
+      const o = bp[nome] = bp[nome] || { saldo: 0, valor: 0, n: 0, dias: 0 };
+      o.saldo += s; o.valor += valorSaldoEntrega(e); o.n += 1; o.dias = Math.max(o.dias, diasEntrega(e) || 0);
+    });
+    const prow = Object.entries(bp).sort((a, b) => b[1].saldo - a[1].saldo);
+    $('partEmpty').style.display = prow.length ? 'none' : 'block';
+    $('partBody').innerHTML = prow.map(([nome, v]) => `
+      <tr>
+        <td>${esc(nome)}</td>
+        <td class="num warn">${v.saldo}</td>
+        <td class="num">${fmtBRL(v.valor)}</td>
+        <td class="num">${v.n}</td>
+        <td class="num" style="color:var(--text-dim)">${v.dias}d</td>
+      </tr>`).join('');
+  }
+
+  function renderTipoTable(){
+    const acc = { pbr: { cli: 0, own: 0, valor: 0 }, descartavel: { cli: 0, own: 0, valor: 0 } };
+    coletas.forEach(c => {
+      const t = tipoDe(c), s = saldoColeta(c);
+      if (s <= 0) return;
+      if (donoDe(c) === 'portoex') acc[t].own += s; else acc[t].cli += s;
+      acc[t].valor += valorSaldoColeta(c);
+    });
+    const row = (t) => `<tr><td>${TIPO_LABEL[t]}</td><td class="num">${fmtBRL(VALORES[t])}</td><td class="num">${acc[t].cli}</td><td class="num">${acc[t].own}</td><td class="num accent">${fmtBRL(acc[t].valor)}</td></tr>`;
+    const tot = { cli: acc.pbr.cli + acc.descartavel.cli, own: acc.pbr.own + acc.descartavel.own, valor: acc.pbr.valor + acc.descartavel.valor };
+    $('tipoBody').innerHTML = row('pbr') + row('descartavel') + `<tr class="total"><td>Total</td><td></td><td class="num">${tot.cli}</td><td class="num">${tot.own}</td><td class="num accent">${fmtBRL(tot.valor)}</td></tr>`;
   }
 
   function drawChart(key, wrapId, emptyMsg, config){
@@ -982,30 +1314,35 @@ const operacoesCol = collection(db, 'operacoes');
 
   function renderCharts(){
     if (typeof Chart !== 'undefined' && Chart.defaults && Chart.defaults.font) { Chart.defaults.font.family = "'Poppins', sans-serif"; Chart.defaults.color = '#AAAFC4'; }
-    const recs = records.filter(r => donoDe(r) === 'cliente');   // gráficos: pallets dos clientes
-    const hasData = recs.length > 0;
+    const cc = coletas.filter(c => donoDe(c) === 'cliente');
+    const hasData = cc.length > 0;
     const axisText = '#AAAFC4', grid = '#2D3148';
 
-    // Evolução: coletados x devolvidos (acumulado por data)
+    // Evolução: coletados, entregues e devolvidos (acumulado por data)
     let evoConfig = null;
     if (hasData) {
-      const byColeta = {}, byDev = {};
-      recs.forEach(r => {
-        const d = col(r).data;
-        if (d) byColeta[d] = (byColeta[d] || 0) + qtdColetada(r);
-        (r.devolucoes || []).forEach(x => { if (x.data) byDev[x.data] = (byDev[x.data] || 0) + (Number(x.qtd) || 0); });
+      const byC = {}, byE = {}, byD = {};
+      const addD = (list) => (list || []).forEach(x => { if (x.data) byD[x.data] = (byD[x.data] || 0) + (Number(x.qtd) || 0); });
+      cc.forEach(c => {
+        if (c.data) byC[c.data] = (byC[c.data] || 0) + qtdColetada(c);
+        addD(c.devolucoes);
+        entregasDe(c).forEach(e => {
+          if (e.data) byE[e.data] = (byE[e.data] || 0) + (Number(e.qtd) || 0);
+          addD(e.devolucoes);
+        });
       });
-      const dates = uniqueSorted([...Object.keys(byColeta), ...Object.keys(byDev)]);
-      let accC = 0, accD = 0;
-      const serieC = [], serieD = [];
-      dates.forEach(d => { accC += byColeta[d] || 0; accD += byDev[d] || 0; serieC.push(accC); serieD.push(accD); });
+      const dates = uniq([...Object.keys(byC), ...Object.keys(byE), ...Object.keys(byD)]);
+      let aC = 0, aE = 0, aD = 0;
+      const sC = [], sE = [], sD = [];
+      dates.forEach(d => { aC += byC[d] || 0; aE += byE[d] || 0; aD += byD[d] || 0; sC.push(aC); sE.push(aE); sD.push(aD); });
       evoConfig = {
         type: 'line',
         data: {
           labels: dates.map(fmtDate),
           datasets: [
-            { label: 'Coletados (acum.)', data: serieC, borderColor: '#FF6428', backgroundColor: 'rgba(255,100,40,0.16)', tension: 0.3, fill: true, pointRadius: 2 },
-            { label: 'Devolvidos (acum.)', data: serieD, borderColor: '#FFFFFF', backgroundColor: 'rgba(255,255,255,0.06)', tension: 0.3, fill: true, pointRadius: 2 }
+            { label: 'Coletados (acum.)', data: sC, borderColor: '#FF6428', backgroundColor: 'rgba(255,100,40,0.16)', tension: 0.3, fill: true, pointRadius: 2 },
+            { label: 'Entregues (acum.)', data: sE, borderColor: '#AAAFC4', backgroundColor: 'rgba(170,175,196,0.05)', tension: 0.3, fill: false, pointRadius: 2 },
+            { label: 'Devolvidos (acum.)', data: sD, borderColor: '#3DDC97', backgroundColor: 'rgba(61,220,151,0.06)', tension: 0.3, fill: false, pointRadius: 2 }
           ]
         },
         options: {
@@ -1020,17 +1357,19 @@ const operacoesCol = collection(db, 'operacoes');
     }
     drawChart('evolucao', 'wrapEvolucao', 'Sem dados para exibir ainda.', evoConfig);
 
-    // Situação: onde estão os pallets (em quantidade)
+    // Situação: onde estão os pallets dos clientes
     let sitConfig = null;
     if (hasData) {
-      const portoex = recs.reduce((s, r) => s + (localPaletes(r) === 'portoex' ? saldoDe(r) : 0), 0);
-      const destino = recs.reduce((s, r) => s + (localPaletes(r) === 'destino' ? saldoDe(r) : 0), 0);
-      const devolvido = recs.reduce((s, r) => s + qtdDevolvida(r), 0);
+      let aguard = 0, voltaram = 0, destino = 0, devol = 0;
+      cc.forEach(c => {
+        aguard += aEntregar(c); devol += devolvidoColeta(c);
+        entregasDe(c).forEach(e => { const s = saldoEntrega(e); if (e.paletesFicaram === 'destino') destino += s; else voltaram += s; });
+      });
       sitConfig = {
         type: 'doughnut',
         data: {
-          labels: ['Com a PortoEX', 'Nos destinos', 'Devolvidos'],
-          datasets: [{ data: [portoex, destino, devolvido], backgroundColor: ['#FFFFFF', '#FF6428', '#3DDC97'], borderColor: '#161826', borderWidth: 3 }]
+          labels: ['Aguardando entrega', 'Com a PortoEX', 'Nos destinos', 'Devolvidos'],
+          datasets: [{ data: [aguard, voltaram, destino, devol], backgroundColor: ['#AAAFC4', '#FFFFFF', '#FF6428', '#3DDC97'], borderColor: '#161826', borderWidth: 3 }]
         },
         options: {
           responsive: true, maintainAspectRatio: false, cutout: '66%',
@@ -1040,7 +1379,7 @@ const operacoesCol = collection(db, 'operacoes');
     }
     drawChart('situacao', 'wrapSituacao', 'Sem dados para exibir ainda.', sitConfig);
 
-    // Saldo por cliente (empilhado: com a PortoEX x nos destinos)
+    // Saldo por cliente (empilhado)
     const agg = aggregateByCliente().slice(0, 8);
     let cliConfig = null;
     if (agg.length > 0) {
@@ -1049,8 +1388,9 @@ const operacoesCol = collection(db, 'operacoes');
         data: {
           labels: agg.map(([n]) => n),
           datasets: [
-            { label: 'Com a PortoEX', data: agg.map(([,v]) => v.portoex), backgroundColor: '#FFFFFF', borderRadius: 3, maxBarThickness: 28 },
-            { label: 'Nos destinos', data: agg.map(([,v]) => v.destino), backgroundColor: '#FF6428', borderRadius: 3, maxBarThickness: 28 }
+            { label: 'Aguardando entrega', data: agg.map(([, v]) => v.aguard), backgroundColor: '#AAAFC4', borderRadius: 3, maxBarThickness: 28 },
+            { label: 'Com a PortoEX', data: agg.map(([, v]) => v.voltaram), backgroundColor: '#FFFFFF', borderRadius: 3, maxBarThickness: 28 },
+            { label: 'Nos destinos', data: agg.map(([, v]) => v.destino), backgroundColor: '#FF6428', borderRadius: 3, maxBarThickness: 28 }
           ]
         },
         options: {
@@ -1067,196 +1407,303 @@ const operacoesCol = collection(db, 'operacoes');
   }
 
   function renderAll(){
-    populateOptions();
-    renderTable();
+    recompute();
+    populateDatalists();
+    ['coletas', 'entregas'].forEach(refreshSelects);
+    renderTable('coletas');
+    renderTable('entregas');
     renderDashboard();
   }
 
   function switchView(view){
     document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
-    if (view === 'controle') renderTable();
+    if (view === 'coletas' || view === 'entregas') renderTable(view);
     if (view === 'dashboard') requestAnimationFrame(renderCharts);
     window.scrollTo(0, 0);
   }
 
-  /* ---------- formulário (novo / editar / registrar entrega) ---------- */
-  function renderSeg(){
-    $('segFicaram').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.v === ficaram));
+  /* ---------- gavetas (formulários) ---------- */
+  function openDrawer(id){ $('overlay').classList.add('show'); $(id).classList.add('show'); }
+  function closeDrawers(){
+    $('overlay').classList.remove('show');
+    $('drawerColeta').classList.remove('show');
+    $('drawerEntrega').classList.remove('show');
+    editingColetaId = null; editingEntregaId = null;
   }
-  function renderSegDono(){
-    $('segDono').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.v === dono));
+  function renderSeg(id, value){
+    $(id).querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.v === value));
   }
-  function renderHist(){
-    $('histTitle').textContent = dono === 'portoex' ? 'Retornos à base registrados' : 'Devoluções registradas';
-    $('histBox').style.display = stagedDevolucoes.length ? 'block' : 'none';
-    $('histList').innerHTML = stagedDevolucoes.map((d, i) => `
+  function renderHist(boxId, listId, titleId, arr, propria, onChange){
+    $(boxId).style.display = arr.length ? 'block' : 'none';
+    $(titleId).textContent = propria ? 'Retornos à base registrados' : 'Devoluções registradas';
+    $(listId).innerHTML = arr.map((d, i) => `
       <div class="hist-item">
         <div>
           <div class="t">${Number(d.qtd) || 0} pallet(s) · ${fmtDate(d.data)}</div>
           <div class="s">Recebido por: ${esc(d.recebidoPor) || '—'}${d.obs ? '<br>' + esc(d.obs) : ''}</div>
         </div>
-        <button type="button" class="btn btn-danger btn-sm" data-rmdev="${i}">Remover</button>
+        <button type="button" class="btn btn-danger btn-sm" data-rm="${i}">Remover</button>
       </div>`).join('');
-    $('histList').querySelectorAll('[data-rmdev]').forEach(b => b.onclick = () => {
+    $(listId).querySelectorAll('[data-rm]').forEach(b => b.onclick = () => {
       if (!confirm('Remover esta devolução? O saldo será recalculado.')) return;
-      stagedDevolucoes.splice(Number(b.dataset.rmdev), 1);
-      renderHist(); refreshComputed();
+      arr.splice(Number(b.dataset.rm), 1);
+      onChange();
     });
   }
-  function entregaPreenchida(){
-    return !!($('feData').value || $('feHorario').value || $('feDestino').value.trim() || ficaram);
+
+  /* ----- coleta ----- */
+  function openColeta(id){
+    editingColetaId = id || null;
+    const c = id ? coletaById[id] : null;
+    $('dcTitle').textContent = c ? 'Editar coleta' : 'Nova coleta';
+    $('fcData').value = c ? (c.data || '') : todayISO();
+    $('fcHorario').value = c ? (c.horario || '') : '';
+    $('fcCliente').value = c ? (c.cliente || '') : '';
+    $('fcEndereco').value = c ? (c.endereco || '') : '';
+    $('fcMotorista').value = c ? (c.motorista || '') : '';
+    $('fcPlaca').value = c ? (c.placa || '') : '';
+    $('fcQtd').value = c ? (c.qtdPaletes ?? '') : '';
+    $('fcObs').value = c ? (c.obs || '') : '';
+    dono = c ? donoDe(c) : null;
+    tipoSel = c ? tipoDe(c) : null;
+    stagedColetaDev = c ? (c.devolucoes || []).map(d => ({ ...d })) : [];
+    renderSeg('segDono', dono);
+    renderSeg('segTipo', tipoSel);
+    renderColetaResumo();
+    openDrawer('drawerColeta');
+    setTimeout(() => { if (!c) $('fcCliente').focus(); }, 200);
   }
-  function refreshComputed(){
-    const preview = {
-      coleta: { qtdPaletes: Number($('fcQtd').value) || 0, donoPaletes: dono },
-      entrega: ($('feData').value && $('feDestino').value.trim() && ficaram) ? { paletesFicaram: ficaram } : null,
-      devolucoes: stagedDevolucoes
-    };
-    $('calcSaldoLabel').textContent = dono === 'portoex' ? 'Saldo fora da base' : 'Saldo pendente';
-    $('calcSaldo').textContent = saldoDe(preview);
-    $('calcStatusBadge').innerHTML = badgeHtml(statusDe(preview), dono);
+  // valor unitário que vale para esta coleta: o já gravado (se o tipo não mudou) ou o valor atual do tipo
+  function unitForForm(){
+    if (!tipoSel) return 0;
+    const ex = editingColetaId ? coletaById[editingColetaId] : null;
+    if (ex && tipoDe(ex) === tipoSel && Number(ex.valorUnit) > 0) return Number(ex.valorUnit);
+    return VALORES[tipoSel];
   }
-
-  function openDrawer(id, focusEntrega){
-    editingId = id || null;
-    const r = id ? records.find(x => x.id === id) : null;
-    const c = r ? col(r) : {};
-    const e = r ? ent(r) : null;
-    $('drawerTitle').textContent = !r ? 'Novo registro' : (focusEntrega && !e ? 'Registrar entrega' : 'Editar registro');
-
-    $('fcData').value = c.data || todayISO();
-    $('fcHorario').value = c.horario || '';
-    $('fcCliente').value = c.cliente || '';
-    $('fcEndereco').value = c.endereco || '';
-    $('fcMotorista').value = c.motorista || '';
-    $('fcPlaca').value = c.placa || '';
-    $('fcQtd').value = c.qtdPaletes ?? '';
-
-    if (e) {
-      $('feData').value = e.data || '';
-      $('feHorario').value = e.horario || '';
-      $('feDestino').value = e.destino || '';
-      $('feMotorista').value = e.motorista || '';
-      $('fePlaca').value = e.placa || '';
-      ficaram = e.paletesFicaram || null;
-    } else if (r && focusEntrega) {
-      // preenchimento automático: data de hoje e mesmo motorista/placa da coleta
-      $('feData').value = todayISO();
-      $('feHorario').value = '';
-      $('feDestino').value = '';
-      $('feMotorista').value = c.motorista || '';
-      $('fePlaca').value = c.placa || '';
-      ficaram = null;
-    } else {
-      ['feData','feHorario','feDestino','feMotorista','fePlaca'].forEach(k => $(k).value = '');
-      ficaram = null;
-    }
-
-    dono = r ? donoDe(r) : null;
-    $('fObs').value = r ? (r.obs || '') : '';
-    stagedDevolucoes = r ? (r.devolucoes || []).map(d => ({ ...d })) : [];
-    renderSeg(); renderSegDono(); renderHist(); refreshComputed();
-
-    $('overlay').classList.add('show');
-    $('drawer').classList.add('show');
-    setTimeout(() => {
-      if (focusEntrega && r && !e) {
-        $('secEntrega').scrollIntoView({ block: 'start' });
-        $('feDestino').focus();
-      } else if (!r) {
-        $('fcCliente').focus();
-      }
-    }, 200);
+  function renderColetaResumo(){
+    const prev = { id: editingColetaId || '__novo__', qtdPaletes: Number($('fcQtd').value) || 0, donoPaletes: dono, tipoPallet: tipoSel, valorUnit: unitForForm(), devolucoes: stagedColetaDev };
+    $('ccSaldoLabel').textContent = dono === 'portoex' ? 'Saldo fora da base' : 'Saldo pendente';
+    $('ccSaldo').textContent = saldoColeta(prev);
+    $('ccBadge').innerHTML = badgeHtml(statusColeta(prev), dono);
+    const n = entregasDe(prev).length;
+    $('ccInfo').innerHTML = `Entregues: <b>${qtdEntregue(prev)}</b> · A entregar: <b>${aEntregar(prev)}</b>${n ? ` · ${n} entrega(s) ligada(s)` : ''}`
+      + (tipoSel ? `<br>Tipo: <b>${TIPO_LABEL[tipoSel]}</b> · Valor do pallet: <b>${fmtBRL(prev.valorUnit)}</b> · Valor do saldo: <b>${fmtBRL(valorSaldoColeta(prev))}</b>` : '');
+    renderHist('ccHistBox', 'ccHistList', 'ccHistTitle', stagedColetaDev, dono === 'portoex', renderColetaResumo);
   }
-  function closeDrawer(){
-    $('overlay').classList.remove('show');
-    $('drawer').classList.remove('show');
-    editingId = null;
-  }
-
-  async function saveRecord(){
-    const coleta = {
+  async function saveColeta(){
+    const qtd = Number($('fcQtd').value);
+    const data = {
+      v: 3, tipo: 'coleta',
       data: $('fcData').value,
       horario: $('fcHorario').value || '',
       cliente: $('fcCliente').value.trim(),
       endereco: $('fcEndereco').value.trim(),
       motorista: $('fcMotorista').value.trim(),
       placa: $('fcPlaca').value.trim().toUpperCase(),
-      qtdPaletes: Number($('fcQtd').value),
-      donoPaletes: dono
+      qtdPaletes: qtd,
+      donoPaletes: dono,
+      tipoPallet: tipoSel,
+      valorUnit: unitForForm(),
+      obs: $('fcObs').value.trim(),
+      devolucoes: stagedColetaDev,
+      updatedAt: Date.now()
     };
-    if (!coleta.data) return toast('Informe a data da coleta.');
-    if (!coleta.cliente) return toast('Informe o cliente / remetente da coleta.');
-    if (!coleta.motorista) return toast('Informe o motorista da coleta.');
-    if (!coleta.placa) return toast('Informe a placa do veículo da coleta.');
+    if (!data.data) return toast('Informe a data da coleta.');
+    if (!data.cliente) return toast('Informe o cliente / remetente da coleta.');
+    if (!data.motorista) return toast('Informe o motorista da coleta.');
+    if (!data.placa) return toast('Informe a placa do veículo da coleta.');
     if (!dono) return toast('Informe de quem são os pallets (do cliente ou da PortoEX).');
-    if (!Number.isInteger(coleta.qtdPaletes) || coleta.qtdPaletes < 1) return toast('Informe a quantidade de pallets coletados (1 ou mais).');
-
-    const jaDevolvido = stagedDevolucoes.reduce((s, d) => s + (Number(d.qtd) || 0), 0);
-    if (coleta.qtdPaletes < jaDevolvido) return toast(`A quantidade coletada não pode ser menor que o já devolvido (${jaDevolvido}).`);
-
-    let entrega = null;
-    if (entregaPreenchida()) {
-      entrega = {
-        data: $('feData').value,
-        horario: $('feHorario').value || '',
-        destino: $('feDestino').value.trim(),
-        motorista: $('feMotorista').value.trim(),
-        placa: $('fePlaca').value.trim().toUpperCase(),
-        paletesFicaram: ficaram
-      };
-      if (!entrega.data) return toast('Informe a data da entrega.');
-      if (!entrega.destino) return toast('Informe o destinatário / armazém / redespacho da entrega.');
-      if (!entrega.paletesFicaram) return toast('Informe se os pallets ficaram no destino ou voltaram com a PortoEX.');
-      if (entrega.data < coleta.data) return toast('A data da entrega não pode ser anterior à data da coleta.');
-    }
-
-    const data = { v: 2, coleta, entrega, devolucoes: stagedDevolucoes, obs: $('fObs').value.trim(), updatedAt: Date.now() };
+    if (!tipoSel) return toast('Informe o tipo de pallet (PBR ou descartável).');
+    if (!Number.isInteger(qtd) || qtd < 1) return toast('Informe a quantidade de pallets coletados (1 ou mais).');
+    const ocupado = (editingColetaId ? qtdEntregue({ id: editingColetaId }) : 0) + sumOf(stagedColetaDev, d => Number(d.qtd) || 0);
+    if (qtd < ocupado) return toast(`A quantidade coletada não pode ser menor que o já entregue ou devolvido (${ocupado}).`);
     try {
-      if (editingId) {
-        await updateDoc(doc(db, 'operacoes', editingId), data);
+      if (editingColetaId) {
+        await updateDoc(doc(db, 'operacoes', editingColetaId), data);
       } else {
         data.createdAt = Date.now();
         await addDoc(operacoesCol, data);
       }
-      closeDrawer();
-      toast('Registro salvo com sucesso.');
+      closeDrawers();
+      toast('Coleta salva com sucesso.');
     } catch (err) {
       toast('Não foi possível salvar. Verifique a conexão e tente novamente.');
     }
   }
-
-  async function removeRecord(id){
-    if (!confirm('Excluir este registro de pallets? Essa ação não pode ser desfeita.')) return;
+  async function removeColeta(id){
+    const c = coletaById[id];
+    if (!c) return;
+    const n = entregasDe(c).length;
+    if (n > 0) return toast(`Esta coleta tem ${n} entrega(s) ligada(s). Exclua as entregas primeiro.`);
+    if (!confirm('Excluir esta coleta? Essa ação não pode ser desfeita.')) return;
     try {
       await deleteDoc(doc(db, 'operacoes', id));
-      toast('Registro excluído.');
+      toast('Coleta excluída.');
     } catch (err) {
       toast('Não foi possível excluir. Tente novamente.');
     }
   }
 
-  /* ---------- devolução ao cliente ---------- */
-  function openDevolucaoModal(id){
-    const r = records.find(x => x.id === id);
+  /* ----- entrega ----- */
+  function coletaOptionLabel(c){
+    return `${fmtDate(c.data)} · ${c.cliente} · ${aEntregar(c)} a entregar (de ${qtdColetada(c)})`;
+  }
+  function openEntrega(id, preColetaId){
+    const e = id ? entregaById[id] : null;
+    const opts = coletas.filter(c => aEntregar(c) > 0 || (e && c.id === e.coletaId)).sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+    if (!e && opts.length === 0) return toast('Não há coletas com pallets a entregar. Cadastre uma coleta primeiro.');
+    editingEntregaId = id || null;
+    $('deTitle').textContent = e ? 'Editar entrega' : 'Nova entrega';
+    $('feColeta').innerHTML = '<option value="">Selecione a coleta…</option>' + opts.map(c => `<option value="${c.id}">${esc(coletaOptionLabel(c))}</option>`).join('');
+    $('feColeta').value = e ? e.coletaId : (preColetaId || '');
+    $('feColeta').disabled = !!e;
+    if (e) {
+      $('feData').value = e.data || '';
+      $('feHorario').value = e.horario || '';
+      $('feDestinatario').value = e.destinatario || '';
+      $('feMotorista').value = e.motorista || '';
+      $('fePlaca').value = e.placa || '';
+      $('feQtd').value = e.qtd ?? '';
+      $('feObs').value = e.obs || '';
+      $('feParceiro').value = e.parceiro || '';
+      eFicaram = e.paletesFicaram || null;
+      eParceiro = !!e.porParceiro;
+      eResp = respDe(e);
+      stagedEntregaDev = (e.devolucoes || []).map(d => ({ ...d }));
+    } else {
+      ['feData', 'feHorario', 'feDestinatario', 'feMotorista', 'fePlaca', 'feQtd', 'feObs', 'feParceiro'].forEach(k => $(k).value = '');
+      eFicaram = null; eParceiro = false; eResp = 'portoex'; stagedEntregaDev = [];
+      if ($('feColeta').value) applyColetaDefaults();
+    }
+    renderEntregaSegs();
+    renderEntregaInfo();
+    renderEntregaResumo();
+    openDrawer('drawerEntrega');
+    setTimeout(() => { if (!e) ($('feColeta').value ? $('feDestinatario') : $('feColeta')).focus(); }, 200);
+  }
+  function applyColetaDefaults(){
+    const c = coletaById[$('feColeta').value];
+    if (!c) return;
+    $('feData').value = todayISO();
+    $('feMotorista').value = c.motorista || '';
+    $('fePlaca').value = c.placa || '';
+    $('feQtd').value = disponivel(c, null);
+  }
+  function renderEntregaSegs(){
+    renderSeg('segFicaram', eFicaram);
+    renderSeg('segParceiro', eParceiro ? 'sim' : 'nao');
+    renderSeg('segResp', eResp);
+    $('feParceiroWrap').style.display = eParceiro ? 'block' : 'none';
+  }
+  function renderEntregaInfo(){
+    const c = coletaById[$('feColeta').value];
+    if (!c) { $('feInfo').textContent = 'Escolha a coleta para ver quantos pallets ainda podem ser entregues.'; return; }
+    const disp = disponivel(c, editingEntregaId);
+    $('feInfo').innerHTML = `Pallets <b>${TIPO_LABEL[tipoDe(c)]}</b> (${fmtBRL(valorUnitDe(c))} cada) · <b>${donoDe(c) === 'portoex' ? 'da PortoEX' : 'do cliente'}</b> · Coletados: <b>${qtdColetada(c)}</b> · Disponíveis para entregar: <b>${disp}</b>`;
+  }
+  function renderEntregaResumo(){
+    const c = coletaById[$('feColeta').value];
+    const d = c ? donoDe(c) : 'cliente';
+    const prev = { qtd: Number($('feQtd').value) || 0, paletesFicaram: eFicaram, devolucoes: stagedEntregaDev };
+    $('ceSaldoLabel').textContent = d === 'portoex' ? 'Saldo fora da base' : 'Saldo pendente';
+    $('ceSaldo').textContent = saldoEntrega(prev);
+    $('ceBadge').innerHTML = badgeHtml(statusEntrega(prev), d);
+    $('ceResp').innerHTML = eResp === 'controladoria'
+      ? `Retorno sob responsabilidade da <b>Controladoria</b>${eParceiro && $('feParceiro').value.trim() ? ' · parceiro: <b>' + esc($('feParceiro').value.trim()) + '</b>' : ''}`
+      : 'Retorno sob responsabilidade da <b>PortoEX</b>';
+    $('ceResp').innerHTML += `<br>Valor do saldo: <b>${fmtBRL(saldoEntrega(prev) * (c ? valorUnitDe(c) : 0))}</b>`;
+    renderHist('ceHistBox', 'ceHistList', 'ceHistTitle', stagedEntregaDev, d === 'portoex', renderEntregaResumo);
+  }
+  async function saveEntrega(){
+    const coletaId = $('feColeta').value;
+    const c = coletaById[coletaId];
+    const qtd = Number($('feQtd').value);
+    const data = {
+      v: 3, tipo: 'entrega', coletaId,
+      data: $('feData').value,
+      horario: $('feHorario').value || '',
+      destinatario: $('feDestinatario').value.trim(),
+      motorista: $('feMotorista').value.trim(),
+      placa: $('fePlaca').value.trim().toUpperCase(),
+      qtd,
+      paletesFicaram: eFicaram,
+      porParceiro: eParceiro,
+      parceiro: eParceiro ? $('feParceiro').value.trim() : '',
+      respRetorno: eResp,
+      obs: $('feObs').value.trim(),
+      devolucoes: stagedEntregaDev,
+      updatedAt: Date.now()
+    };
+    if (!c) return toast('Selecione a coleta de origem.');
+    if (!data.data) return toast('Informe a data da entrega.');
+    if (!data.destinatario) return toast('Informe o destinatário / armazém / redespacho.');
+    if (!Number.isInteger(qtd) || qtd < 1) return toast('Informe a quantidade de pallets entregues (1 ou mais).');
+    const disp = disponivel(c, editingEntregaId);
+    if (qtd > disp) return toast(`A quantidade entregue não pode ser maior que o disponível na coleta (${disp}).`);
+    if (data.data < (c.data || '')) return toast('A data da entrega não pode ser anterior à data da coleta.');
+    if (!eFicaram) return toast('Informe se os pallets ficaram no destino ou voltaram com a PortoEX.');
+    if (eParceiro && !data.parceiro) return toast('Informe o nome do parceiro.');
+    const jaDev = sumOf(stagedEntregaDev, d => Number(d.qtd) || 0);
+    if (qtd < jaDev) return toast(`A quantidade entregue não pode ser menor que o já devolvido (${jaDev}).`);
+    try {
+      if (editingEntregaId) {
+        await updateDoc(doc(db, 'operacoes', editingEntregaId), data);
+      } else {
+        data.createdAt = Date.now();
+        await addDoc(operacoesCol, data);
+      }
+      const novo = !editingEntregaId;
+      closeDrawers();
+      toast(novo ? 'Entrega registrada com sucesso.' : 'Entrega salva com sucesso.');
+    } catch (err) {
+      toast('Não foi possível salvar. Verifique a conexão e tente novamente.');
+    }
+  }
+  async function removeEntrega(id){
+    if (!confirm('Excluir esta entrega? Os pallets voltam a ficar disponíveis na coleta. Essa ação não pode ser desfeita.')) return;
+    try {
+      await deleteDoc(doc(db, 'operacoes', id));
+      toast('Entrega excluída.');
+    } catch (err) {
+      toast('Não foi possível excluir. Tente novamente.');
+    }
+  }
+
+  /* ---------- devolução / retorno à base ---------- */
+  function openDevolucao(kind, id){
+    const r = kind === 'entrega' ? entregaById[id] : coletaById[id];
     if (!r) return;
-    devTargetId = id;
-    const saldo = saldoDe(r);
-    const propria = donoDe(r) === 'portoex';
-    $('devTitle').textContent = propria ? 'Registrar retorno à base' : 'Registrar devolução';
-    $('devParaLabel').textContent = propria ? 'Coletados de' : 'Devolver para';
-    $('devJaLabel').textContent = propria ? 'Já retornou' : 'Já devolvido';
-    $('devQtdLabel').textContent = propria ? 'Quantidade que retornou à base agora' : 'Quantidade devolvida agora';
-    $('devDataLabel').textContent = propria ? 'Data do retorno à base' : 'Data da devolução';
-    $('devRecebidoLabel').textContent = propria ? 'Quem recebeu na base' : 'Quem recebeu';
-    $('devRecebido').placeholder = propria ? 'Nome de quem recebeu na base' : 'Nome de quem recebeu no cliente';
-    $('devCliente').textContent = col(r).cliente || '—';
-    $('devColetaData').textContent = fmtDate(col(r).data);
-    $('devColetados').textContent = qtdColetada(r);
-    $('devJa').textContent = qtdDevolvida(r);
+    const c = kind === 'entrega' ? (coletaDe(r) || {}) : r;
+    const propria = donoDe(c) === 'portoex';
+    const T = (cli, own) => propria ? own : cli;
+    const saldo = kind === 'entrega' ? saldoEntrega(r) : aEntregar(r);
+    devTarget = { kind, id };
+    $('devTitle').textContent = kind === 'entrega'
+      ? T('Registrar devolução', 'Registrar retorno à base')
+      : T('Devolver pallets não entregues', 'Retornar à base pallets não entregues');
+    $('devParaLabel').textContent = T('Devolver para', 'Coletados de');
+    $('devCliente').textContent = c.cliente || '—';
+    $('devDataK').textContent = kind === 'entrega' ? 'Data da entrega' : 'Data da coleta';
+    $('devDataInfo').textContent = fmtDate(r.data);
+    $('devQtdK').textContent = kind === 'entrega' ? 'Entregues' : 'Não entregues';
+    $('devQtdInfo').textContent = kind === 'entrega' ? (Number(r.qtd) || 0) : (aEntregar(r) + devQtd(r));
+    $('devJaLabel').textContent = T('Já devolvido', 'Já retornou');
+    $('devJa').textContent = devQtd(r);
     $('devSaldo').textContent = saldo;
-    $('devOnde').textContent = localPaletes(r) === 'destino' ? 'No destino' : 'Com a PortoEX';
+    $('devValor').textContent = fmtBRL(saldo * valorUnitDe(c));
+    $('devOnde').textContent = kind === 'entrega' ? (r.paletesFicaram === 'destino' ? 'No destino' : 'Com a PortoEX') : 'Com a PortoEX';
+    const banner = $('devBanner');
+    if (kind === 'entrega' && respDe(r) === 'controladoria') {
+      banner.innerHTML = `<b>Retorno sob responsabilidade da Controladoria</b>${r.parceiro ? ' — parceiro: ' + esc(r.parceiro) : ''}. Registre aqui a devolução normalmente.`;
+      banner.style.display = 'block';
+    } else {
+      banner.style.display = 'none';
+    }
+    $('devQtdLabel').textContent = T('Quantidade devolvida agora', 'Quantidade que retornou à base agora');
+    $('devDataLabel').textContent = T('Data da devolução', 'Data do retorno à base');
+    $('devRecebidoLabel').textContent = T('Quem recebeu', 'Quem recebeu na base');
+    $('devRecebido').placeholder = T('Nome de quem recebeu no cliente', 'Nome de quem recebeu na base');
     $('devQtd').value = saldo;           // preenchimento automático: devolução total
     $('devQtd').max = saldo;
     $('devData').value = todayISO();
@@ -1265,28 +1712,30 @@ const operacoesCol = collection(db, 'operacoes');
     $('devOverlay').classList.add('show');
     setTimeout(() => $('devQtd').select(), 100);
   }
-  function closeDevolucaoModal(){
+  function closeDevolucao(){
     $('devOverlay').classList.remove('show');
-    devTargetId = null;
+    devTarget = null;
   }
   async function saveDevolucao(){
-    const r = records.find(x => x.id === devTargetId);
+    if (!devTarget) return;
+    const { kind, id } = devTarget;
+    const r = kind === 'entrega' ? entregaById[id] : coletaById[id];
     if (!r) return;
-    const propria = donoDe(r) === 'portoex';
-    const saldo = saldoDe(r);
+    const c = kind === 'entrega' ? (coletaDe(r) || {}) : r;
+    const propria = donoDe(c) === 'portoex';
+    const saldo = kind === 'entrega' ? saldoEntrega(r) : aEntregar(r);
     const qtd = Number($('devQtd').value);
     const data = $('devData').value;
     const recebidoPor = $('devRecebido').value.trim();
     if (!Number.isInteger(qtd) || qtd < 1) return toast(propria ? 'Informe uma quantidade válida para o retorno (1 ou mais).' : 'Informe uma quantidade válida para a devolução (1 ou mais).');
     if (qtd > saldo) return toast(`A quantidade ${propria ? 'que retornou' : 'devolvida'} não pode ser maior que o saldo pendente (${saldo}).`);
     if (!data) return toast(propria ? 'Informe a data do retorno à base.' : 'Informe a data da devolução.');
-    if (data < (col(r).data || '')) return toast(`A data ${propria ? 'do retorno' : 'da devolução'} não pode ser anterior à data da coleta.`);
+    if (data < (r.data || '')) return toast(`A data ${propria ? 'do retorno' : 'da devolução'} não pode ser anterior à data ${kind === 'entrega' ? 'da entrega' : 'da coleta'}.`);
     if (!recebidoPor) return toast(propria ? 'Informe quem recebeu na base.' : 'Informe quem recebeu a devolução.');
-
     const devolucoes = [...(r.devolucoes || []), { qtd, data, recebidoPor, obs: $('devObs').value.trim(), at: Date.now() }];
     try {
-      await updateDoc(doc(db, 'operacoes', r.id), { devolucoes, updatedAt: Date.now() });
-      closeDevolucaoModal();
+      await updateDoc(doc(db, 'operacoes', id), { devolucoes, updatedAt: Date.now() });
+      closeDevolucao();
       toast(propria ? 'Retorno à base registrado. Saldo atualizado.' : 'Devolução registrada. Saldo atualizado.');
     } catch (err) {
       toast('Não foi possível registrar. Verifique a conexão e tente novamente.');
@@ -1294,35 +1743,39 @@ const operacoesCol = collection(db, 'operacoes');
   }
 
   /* ---------- exportação (respeita os filtros aplicados) ---------- */
-  function exportCSV(){
-    const list = sortRecords(getFilteredRecords());
+  function exportCSV(key){
+    const list = getList(key);
     if (list.length === 0) return toast('Nenhum registro para exportar com os filtros atuais.');
-    const headers = [
-      'Coleta - Data','Coleta - Horário','Coleta - Cliente/Remetente','Coleta - Endereço','Coleta - Motorista','Coleta - Placa','Pallets de quem','Pallets coletados',
-      'Entrega - Data','Entrega - Horário','Entrega - Destinatário/Armazém/Redespacho','Entrega - Motorista','Entrega - Placa','Pallets após entrega',
-      'Devolvido / retornado à base','Saldo pendente','Dias pendentes','Situação','Devoluções ou retornos à base (data · qtd · quem recebeu)','Observações'
-    ];
-    const rows = list.map(r => {
-      const c = col(r), e = ent(r) || {};
-      const devs = (r.devolucoes || []).map(d => `${fmtDate(d.data)} · ${d.qtd} · ${d.recebidoPor || '-'}`).join(' | ');
-      return [
-        fmtDate(c.data), c.horario || '', c.cliente || '', c.endereco || '', c.motorista || '', c.placa || '', donoDe(r) === 'portoex' ? 'Da PortoEX' : 'Do cliente', qtdColetada(r),
-        e.data ? fmtDate(e.data) : '', e.horario || '', e.destino || '', e.motorista || '', e.placa || '',
-        e.paletesFicaram === 'destino' ? 'Ficaram no destino' : (e.paletesFicaram === 'portoex' ? 'Voltaram com a PortoEX' : ''),
-        qtdDevolvida(r), saldoDe(r), diasPendentes(r) ?? '', statusLabel(statusDe(r), donoDe(r)), devs, (r.obs || '').replace(/\s*\n\s*/g, ' ')
-      ];
-    });
-    const cell = (v) => {
-      const s = String(v ?? '');
-      return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
+    const donoTxt = (c) => donoDe(c) === 'portoex' ? 'Da PortoEX' : 'Do cliente';
+    const devsTxt = (r) => (r.devolucoes || []).map(d => `${fmtDate(d.data)} · ${d.qtd} · ${d.recebidoPor || '-'}`).join(' | ');
+    let headers, rows;
+    if (key === 'coletas') {
+      headers = ['Coleta - Data', 'Coleta - Horário', 'Cliente / Remetente', 'Endereço', 'Motorista', 'Placa', 'Pallets de quem', 'Tipo de pallet', 'Pallets coletados', 'Pallets entregues', 'A entregar', 'Devolvidos / retornados', 'Saldo pendente', 'Valor do pallet (R$)', 'Valor do saldo pendente (R$)', 'Dias pendentes', 'Situação', 'Nº de entregas', 'Observações'];
+      rows = list.map(c => [
+        fmtDate(c.data), c.horario || '', c.cliente || '', c.endereco || '', c.motorista || '', c.placa || '', donoTxt(c), TIPO_LABEL[tipoDe(c)],
+        qtdColetada(c), qtdEntregue(c), aEntregar(c), devolvidoColeta(c), saldoColeta(c), fmtNum(valorUnitDe(c)), fmtNum(valorSaldoColeta(c)), diasColeta(c) ?? '',
+        statusLabel(statusColeta(c), donoDe(c)), entregasDe(c).length, (c.obs || '').replace(/\s*\n\s*/g, ' ')
+      ]);
+    } else {
+      headers = ['Entrega - Data', 'Entrega - Horário', 'Coleta - Data', 'Cliente (da coleta)', 'Pallets de quem', 'Tipo de pallet', 'Destinatário / Armazém / Redespacho', 'Motorista', 'Placa', 'Pallets entregues', 'O que aconteceu com os pallets', 'Entrega por parceiro', 'Parceiro', 'Retorno sob responsabilidade de', 'Devolvidos / retornados', 'Saldo pendente', 'Valor do pallet (R$)', 'Valor do saldo pendente (R$)', 'Dias pendentes', 'Situação', 'Devoluções (data · qtd · quem recebeu)', 'Observações'];
+      rows = list.map(e => {
+        const c = coletaDe(e) || {};
+        return [
+          fmtDate(e.data), e.horario || '', c.data ? fmtDate(c.data) : '', c.cliente || '', donoTxt(c), TIPO_LABEL[tipoDe(c)], e.destinatario || '', e.motorista || '', e.placa || '',
+          Number(e.qtd) || 0, e.paletesFicaram === 'destino' ? 'Ficaram no destino' : (e.paletesFicaram === 'portoex' ? 'Voltaram com a PortoEX' : ''),
+          e.porParceiro ? 'Sim' : 'Não', e.parceiro || '', respDe(e) === 'controladoria' ? 'Controladoria' : 'PortoEX',
+          devQtd(e), saldoEntrega(e), fmtNum(valorUnitDe(c)), fmtNum(valorSaldoEntrega(e)), diasEntrega(e) ?? '', statusLabel(statusEntrega(e), donoDe(c)), devsTxt(e), (e.obs || '').replace(/\s*\n\s*/g, ' ')
+        ];
+      });
+    }
+    const cell = (v) => { const s = String(v ?? ''); return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     const csv = '\uFEFF' + [headers, ...rows].map(row => row.map(cell).join(';')).join('\r\n');
     try {
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `controle-pallets-${todayISO()}.csv`;
+      a.download = `${key}-pallets-${todayISO()}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -1337,8 +1790,8 @@ const operacoesCol = collection(db, 'operacoes');
   function subscribe(){
     onSnapshot(operacoesCol,
       (snap) => {
-        // v === 2 = modelo coleta/entrega/devolução (ignora registros de teste do modelo antigo)
-        records = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.v === 2);
+        // v === 3 = modelo com coletas e entregas separadas (ignora registros de teste de modelos antigos)
+        records = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.v === 3 && (r.tipo === 'coleta' || r.tipo === 'entrega'));
         $('connStatus').classList.add('live');
         $('connStatus').innerHTML = '<span class="dot"></span><span>sincronizado</span>';
         renderAll();
@@ -1352,63 +1805,49 @@ const operacoesCol = collection(db, 'operacoes');
 
   /* ---------- inicialização ---------- */
   function init(){
+    buildShell('coletas');
+    buildShell('entregas');
     document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => switchView(b.dataset.view));
-    $('btnNewTop').onclick = () => openDrawer(null, false);
-    $('btnNewTable').onclick = () => openDrawer(null, false);
-    $('fab').onclick = () => openDrawer(null, false);
-    $('btnClose').onclick = closeDrawer;
-    $('btnCancel').onclick = closeDrawer;
-    $('overlay').onclick = closeDrawer;
-    $('btnSave').onclick = saveRecord;
 
-    $('segFicaram').querySelectorAll('button').forEach(b => b.onclick = () => {
-      ficaram = (ficaram === b.dataset.v) ? null : b.dataset.v;
-      renderSeg(); refreshComputed();
-    });
-    $('segDono').querySelectorAll('button').forEach(b => b.onclick = () => {
-      dono = b.dataset.v;
-      renderSegDono(); refreshComputed();
-    });
-    $('btnLimparEntrega').onclick = () => {
-      ['feData','feHorario','feDestino','feMotorista','fePlaca'].forEach(k => $(k).value = '');
-      ficaram = null; renderSeg(); refreshComputed();
-    };
-    $('drawerBody').addEventListener('input', refreshComputed);
+    $('btnNewColetaTop').onclick = () => openColeta(null);
+    $('btnNewEntregaTop').onclick = () => openEntrega(null, null);
+    $('fab').onclick = (ev) => { ev.stopPropagation(); $('fabMenu').classList.toggle('show'); };
+    $('fabColeta').onclick = () => { $('fabMenu').classList.remove('show'); openColeta(null); };
+    $('fabEntrega').onclick = () => { $('fabMenu').classList.remove('show'); openEntrega(null, null); };
+    document.addEventListener('click', (ev) => { if (!ev.target.closest('#fabMenu')) $('fabMenu').classList.remove('show'); });
 
-    $('devClose').onclick = closeDevolucaoModal;
-    $('devCancel').onclick = closeDevolucaoModal;
-    $('devOverlay').onclick = (ev) => { if (ev.target.id === 'devOverlay') closeDevolucaoModal(); };
+    $('overlay').onclick = closeDrawers;
+    document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeDrawers);
+    $('btnSaveColeta').onclick = saveColeta;
+    $('btnSaveEntrega').onclick = saveEntrega;
+
+    // coleta
+    $('segDono').querySelectorAll('button').forEach(b => b.onclick = () => { dono = b.dataset.v; renderSeg('segDono', dono); renderColetaResumo(); });
+    $('segTipo').querySelectorAll('button').forEach(b => {
+      b.textContent = `${TIPO_LABEL[b.dataset.v]} · ${fmtBRL(VALORES[b.dataset.v])}`;
+      b.onclick = () => { tipoSel = b.dataset.v; renderSeg('segTipo', tipoSel); renderColetaResumo(); };
+    });
+    $('fcQtd').addEventListener('input', renderColetaResumo);
+
+    // entrega
+    $('feColeta').onchange = () => { if (!editingEntregaId) applyColetaDefaults(); renderEntregaInfo(); renderEntregaResumo(); };
+    $('segFicaram').querySelectorAll('button').forEach(b => b.onclick = () => { eFicaram = b.dataset.v; renderEntregaSegs(); renderEntregaResumo(); });
+    $('segParceiro').querySelectorAll('button').forEach(b => b.onclick = () => {
+      eParceiro = b.dataset.v === 'sim';
+      eResp = eParceiro ? 'controladoria' : 'portoex';
+      renderEntregaSegs(); renderEntregaResumo();
+    });
+    $('segResp').querySelectorAll('button').forEach(b => b.onclick = () => { eResp = b.dataset.v; renderEntregaSegs(); renderEntregaResumo(); });
+    ['feQtd', 'feParceiro'].forEach(k => $(k).addEventListener('input', renderEntregaResumo));
+
+    // devolução
+    $('devClose').onclick = closeDevolucao;
+    $('devCancel').onclick = closeDevolucao;
+    $('devOverlay').onclick = (ev) => { if (ev.target.id === 'devOverlay') closeDevolucao(); };
     $('devSave').onclick = saveDevolucao;
 
-    $('searchInput').oninput = () => { page = 1; renderTable(); };
-    $('btnExport').onclick = exportCSV;
-
-    $('chipPendentes').onclick = () => {
-      filters.somentePendentes = !filters.somentePendentes;
-      if (filters.somentePendentes) filters.somenteDevolvidos = false;
-      syncFilterUI(); renderTable();
-    };
-    $('chipDevolvidos').onclick = () => {
-      filters.somenteDevolvidos = !filters.somenteDevolvidos;
-      if (filters.somenteDevolvidos) filters.somentePendentes = false;
-      syncFilterUI(); renderTable();
-    };
-    [['fDono','dono'],['fDataIni','dataIni'],['fDataFim','dataFim'],['fCliente','cliente'],['fDestino','destino'],['fMotorista','motorista'],['fPlaca','placa'],['fStatus','status']]
-      .forEach(([id, key]) => { $(id).onchange = () => { filters[key] = $(id).value; page = 1; renderTable(); }; });
-    $('btnClearFilters').onclick = () => { filters = defaultFilters(); syncFilterUI(); renderTable(); };
-
-    document.querySelectorAll('th[data-sort]').forEach(th => {
-      th.onclick = () => {
-        const f = th.dataset.sort;
-        if (sortState.field === f) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
-        else { sortState.field = f; sortState.dir = 'asc'; }
-        renderTable();
-      };
-    });
-    $('btnPrevPage').onclick = () => { if (page > 1) { page--; renderTable(); } };
-    $('btnNextPage').onclick = () => { page++; renderTable(); };
-
-    syncFilterUI();
+    syncFilterUI('coletas');
+    syncFilterUI('entregas');
     renderAll();      // começa zerado, antes mesmo do banco responder
     subscribe();
   }
