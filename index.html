@@ -402,7 +402,7 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
     <button data-view="entregas">Entregas</button>
   </nav>
   <div class="conn" id="connStatus"><span class="dot"></span><span>conectando…</span></div>
-  <span class="ver" title="Versão do painel">v3.3 · 19/10/2026</span>
+  <span class="ver" title="Versão do painel">v3.4 · 19/10/2026</span>
   <button class="btn btn-outline desktop-only" id="btnNewEntregaTop">+ Nova entrega</button>
   <button class="btn btn-primary desktop-only" id="btnNewColetaTop">+ Nova coleta</button>
 </header>
@@ -551,6 +551,10 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
         <label>Endereço</label>
         <input id="fcEndereco" placeholder="Endereço da coleta">
       </div>
+      <div class="field">
+        <label>Cidade</label>
+        <input id="fcCidade" list="cidadesList" placeholder="Cidade da coleta">
+      </div>
       <div class="field-row">
         <div class="field"><label>Motorista</label><input id="fcMotorista" list="motoristasList" placeholder="Nome"></div>
         <div class="field"><label>Placa</label><input id="fcPlaca" list="placasList" placeholder="ABC1D23" style="text-transform:uppercase"></div>
@@ -633,6 +637,10 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
         <label>Destinatário / Armazém / Redespacho</label>
         <input id="feDestinatario" list="nomesList" placeholder="Onde a carga foi entregue">
       </div>
+      <div class="field">
+        <label>Cidade</label>
+        <input id="feCidade" list="cidadesList" placeholder="Cidade da entrega">
+      </div>
       <div class="field-row">
         <div class="field"><label>Motorista</label><input id="feMotorista" list="motoristasList" placeholder="Nome"></div>
         <div class="field"><label>Placa</label><input id="fePlaca" list="placasList" placeholder="ABC1D23" style="text-transform:uppercase"></div>
@@ -708,6 +716,7 @@ td.obs { max-width: 200px; color: var(--text-dim); font-size: 12px; }
 <datalist id="motoristasList"></datalist>
 <datalist id="placasList"></datalist>
 <datalist id="parceirosList"></datalist>
+<datalist id="cidadesList"></datalist>
 
 <!-- ============ MODAL: devolução / retorno à base ============ -->
 <div class="modal-overlay" id="devOverlay">
@@ -796,7 +805,7 @@ const operacoesCol = collection(db, 'operacoes');
   let holderFilter = '';
   const charts = {};
 
-  const defFilters = () => ({ chip:'', dataIni:'', dataFim:'', cliente:'', destinatario:'', motorista:'', placa:'', dono:'', tipo:'', resp:'', status:'', coletaId:'' });
+  const defFilters = () => ({ chip:'', dataIni:'', dataFim:'', cliente:'', destinatario:'', motorista:'', placa:'', dono:'', tipo:'', cidade:'', resp:'', status:'', coletaId:'' });
   const VS = {
     coletas:  { f: defFilters(), sort: { field: 'data', dir: 'desc' }, page: 1 },
     entregas: { f: defFilters(), sort: { field: 'data', dir: 'desc' }, page: 1 }
@@ -910,7 +919,7 @@ const operacoesCol = collection(db, 'operacoes');
       chips: [['pendentes', 'Pallets pendentes'], ['fechadas', 'Somente concluídas']],
       fields: [
         ['dataIni', 'Coleta de', 'date'], ['dataFim', 'Coleta até', 'date'],
-        ['cliente', 'Cliente', 'select'], ['motorista', 'Motorista', 'select'], ['placa', 'Placa', 'select'],
+        ['cliente', 'Cliente', 'select'], ['cidade', 'Cidade', 'select'], ['motorista', 'Motorista', 'select'], ['placa', 'Placa', 'select'],
         ['dono', 'Pallets de quem', 'select', [['cliente', 'Do cliente'], ['portoex', 'Da PortoEX']]],
         ['tipo', 'Tipo de pallet', 'select', [['pbr', 'PBR'], ['descartavel', 'Descartável']]],
         ['status', 'Situação', 'select', [['aguardando_entrega', 'Aguardando entrega'], ['entrega_parcial', 'Entrega parcial'], ['entregue', 'Entregue (a devolver)'], ['concluida', 'Concluída']]]
@@ -923,7 +932,7 @@ const operacoesCol = collection(db, 'operacoes');
       chips: [['pendentes', 'Pallets pendentes'], ['fechadas', 'Somente devolvidas']],
       fields: [
         ['dataIni', 'Entrega de', 'date'], ['dataFim', 'Entrega até', 'date'],
-        ['cliente', 'Cliente (da coleta)', 'select'], ['destinatario', 'Destinatário', 'select'], ['motorista', 'Motorista', 'select'], ['placa', 'Placa', 'select'],
+        ['cliente', 'Cliente (da coleta)', 'select'], ['destinatario', 'Destinatário', 'select'], ['cidade', 'Cidade', 'select'], ['motorista', 'Motorista', 'select'], ['placa', 'Placa', 'select'],
         ['resp', 'Retorno por', 'select', [['portoex', 'PortoEX'], ['controladoria', 'Controladoria']]],
         ['dono', 'Pallets de quem', 'select', [['cliente', 'Do cliente'], ['portoex', 'Da PortoEX']]],
         ['tipo', 'Tipo de pallet', 'select', [['pbr', 'PBR'], ['descartavel', 'Descartável']]],
@@ -936,11 +945,13 @@ const operacoesCol = collection(db, 'operacoes');
   function dynValues(key, field){
     if (key === 'coletas') {
       if (field === 'cliente') return uniq(coletas.map(c => c.cliente));
+      if (field === 'cidade') return uniq(coletas.map(c => c.cidade));
       if (field === 'motorista') return uniq(coletas.map(c => c.motorista));
       if (field === 'placa') return uniq(coletas.map(c => c.placa));
     } else {
       if (field === 'cliente') return uniq(entregas.map(e => (coletaDe(e) || {}).cliente));
       if (field === 'destinatario') return uniq(entregas.map(e => e.destinatario));
+      if (field === 'cidade') return uniq(entregas.map(e => e.cidade));
       if (field === 'motorista') return uniq(entregas.map(e => e.motorista));
       if (field === 'placa') return uniq(entregas.map(e => e.placa));
     }
@@ -952,7 +963,7 @@ const operacoesCol = collection(db, 'operacoes');
     const chips = cfg.chips.map(([k, l], i) => `<button class="chip-toggle${i === 0 ? ' destaque' : ''}" data-chip="${k}">${l}</button>`).join('');
     const fields = cfg.fields.map(([k, l, type]) => type === 'date'
       ? `<div class="filter-field"><label>${l}</label><input type="date" data-f="${k}"></div>`
-      : `<div class="filter-field"><label>${l}</label><select data-f="${k}"><option value="">${(k === 'placa' || k === 'status') ? 'Todas' : 'Todos'}</option></select></div>`
+      : `<div class="filter-field"><label>${l}</label><select data-f="${k}"><option value="">${(k === 'placa' || k === 'status' || k === 'cidade') ? 'Todas' : 'Todos'}</option></select></div>`
     ).join('');
     const ths = cfg.cols.map(([l, s]) => s ? `<th data-sort="${s}">${l}<span class="arrow" id="arrow-${key}-${s}"></span></th>` : `<th>${l}</th>`).join('');
     $('view-' + key).innerHTML = `
@@ -1010,7 +1021,7 @@ const operacoesCol = collection(db, 'operacoes');
       const sel = $('view-' + key).querySelector(`[data-f="${k}"]`);
       const cur = sel.value;
       const opts = stat ? stat : dynValues(key, k).map(v => [v, v]);
-      sel.innerHTML = `<option value="">${(k === 'placa' || k === 'status') ? 'Todas' : 'Todos'}</option>` + opts.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('');
+      sel.innerHTML = `<option value="">${(k === 'placa' || k === 'status' || k === 'cidade') ? 'Todas' : 'Todos'}</option>` + opts.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('');
       if (opts.some(([v]) => v === cur)) sel.value = cur;
     });
   }
@@ -1031,6 +1042,7 @@ const operacoesCol = collection(db, 'operacoes');
     fillDatalist($('motoristasList'), uniq([...coletas.map(c => c.motorista), ...entregas.map(e => e.motorista)]));
     fillDatalist($('placasList'), uniq([...coletas.map(c => c.placa), ...entregas.map(e => e.placa)]));
     fillDatalist($('parceirosList'), uniq(entregas.map(e => e.parceiro)));
+    fillDatalist($('cidadesList'), uniq([...coletas.map(c => c.cidade), ...entregas.map(e => e.cidade)]));
   }
   function fillDatalist(dl, values){ dl.innerHTML = values.map(v => `<option value="${esc(v)}">`).join(''); }
 
@@ -1042,6 +1054,7 @@ const operacoesCol = collection(db, 'operacoes');
     if (f.dataIni && (c.data || '') < f.dataIni) return false;
     if (f.dataFim && (c.data || '') > f.dataFim) return false;
     if (f.cliente && c.cliente !== f.cliente) return false;
+    if (f.cidade && (c.cidade || '') !== f.cidade) return false;
     if (f.motorista && c.motorista !== f.motorista) return false;
     if (f.placa && c.placa !== f.placa) return false;
     if (f.dono && donoDe(c) !== f.dono) return false;
@@ -1049,7 +1062,7 @@ const operacoesCol = collection(db, 'operacoes');
     if (f.status && st !== f.status) return false;
     if (q) {
       const ents = entregasDe(c);
-      const hay = [c.cliente, c.endereco, c.motorista, c.placa, ...ents.map(e => e.destinatario), ...ents.map(e => e.parceiro)].filter(Boolean).join(' ').toLowerCase();
+      const hay = [c.cliente, c.endereco, c.cidade, c.motorista, c.placa, ...ents.map(e => e.destinatario), ...ents.map(e => e.cidade), ...ents.map(e => e.parceiro)].filter(Boolean).join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -1064,6 +1077,7 @@ const operacoesCol = collection(db, 'operacoes');
     if (f.dataFim && (e.data || '') > f.dataFim) return false;
     if (f.cliente && c.cliente !== f.cliente) return false;
     if (f.destinatario && e.destinatario !== f.destinatario) return false;
+    if (f.cidade && (e.cidade || '') !== f.cidade) return false;
     if (f.motorista && e.motorista !== f.motorista) return false;
     if (f.placa && e.placa !== f.placa) return false;
     if (f.resp && respDe(e) !== f.resp) return false;
@@ -1071,7 +1085,7 @@ const operacoesCol = collection(db, 'operacoes');
     if (f.tipo && tipoDe(c) !== f.tipo) return false;
     if (f.status && st !== f.status) return false;
     if (q) {
-      const hay = [e.destinatario, e.motorista, e.placa, e.parceiro, c.cliente].filter(Boolean).join(' ').toLowerCase();
+      const hay = [e.destinatario, e.cidade, e.motorista, e.placa, e.parceiro, c.cliente].filter(Boolean).join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -1128,7 +1142,7 @@ const operacoesCol = collection(db, 'operacoes');
     return `
       <tr>
         <td data-label="Coleta">${stack(fmtDate(c.data), esc(c.horario))}</td>
-        <td data-label="Cliente / Remetente">${stack(esc(c.cliente) || '—', esc(c.endereco))}</td>
+        <td data-label="Cliente / Remetente">${stack(esc(c.cliente) || '—', esc([c.endereco, c.cidade].filter(Boolean).join(' · ')))}</td>
         <td data-label="Motorista / Placa">${stack(esc(c.motorista) || '—', placaPill(c.placa))}</td>
         <td data-label="Pallets" class="num"><div class="stack"><span class="main">${qtdColetada(c)}</span><span class="tag-row">${tipoTag(c)}${ownTag(d)}</span></div></td>
         <td data-label="Entregues"><div class="stack"><span class="main">${qtdEntregue(c)} de ${qtdColetada(c)}</span>${ents.length ? `<button class="link-btn" data-act="verent" data-id="${c.id}">${ents.length} entrega(s)</button>` : '<span class="sub">nenhuma entrega</span>'}</div></td>
@@ -1152,7 +1166,7 @@ const operacoesCol = collection(db, 'operacoes');
       <tr>
         <td data-label="Entrega">${stack(fmtDate(e.data), esc(e.horario))}</td>
         <td data-label="Coleta de origem">${stack(esc(c.cliente) || 'Coleta removida', c.data ? 'coleta ' + fmtDate(c.data) : '')}</td>
-        <td data-label="Destinatário">${stack(esc(e.destinatario) || '—', esc([e.motorista, e.placa].filter(Boolean).join(' · ')))}</td>
+        <td data-label="Destinatário"><div class="stack"><span class="main">${esc(e.destinatario) || '—'}</span>${e.cidade ? `<span class="sub">${esc(e.cidade)}</span>` : ''}${(e.motorista || e.placa) ? `<span class="sub">${esc([e.motorista, e.placa].filter(Boolean).join(' · '))}</span>` : ''}</div></td>
         <td data-label="Pallets" class="num"><div class="stack"><span class="main">${Number(e.qtd) || 0}</span><span class="tag-row">${tipoTag(c)}${ownTag(d)}</span></div></td>
         <td data-label="Retorno por">${stack(`<span class="resp-tag ${resp}">${resp === 'controladoria' ? 'Controladoria' : 'PortoEX'}</span>`, respSub)}</td>
         <td data-label="Situação">${stack(badgeHtml(st, d), esc(sub))}</td>
@@ -1343,8 +1357,9 @@ const operacoesCol = collection(db, 'operacoes');
   function renderHolders(){
     const norm = (t) => String(t || '').trim().replace(/\s+/g, ' ').toLowerCase();
     const map = {};
-    const add = (key, nome, sub, tipo, qty, unit, dias, ctrl) => {
-      const o = map[key] = map[key] || { nome, sub, pbr: 0, desc: 0, valor: 0, ctrl: 0, dias: 0 };
+    const add = (key, nome, sub, tipo, qty, unit, dias, ctrl, cidade) => {
+      const o = map[key] = map[key] || { nome, sub, pbr: 0, desc: 0, valor: 0, ctrl: 0, dias: 0, cidades: new Set() };
+      if (cidade) o.cidades.add(cidade);
       if (tipo === 'descartavel') o.desc += qty; else o.pbr += qty;
       o.valor += qty * unit;
       if (ctrl) o.ctrl += qty;
@@ -1360,9 +1375,9 @@ const operacoesCol = collection(db, 'operacoes');
         const ctrl = respDe(e) === 'controladoria';
         if (e.paletesFicaram === 'destino') {
           const nome = (e.destinatario || '').trim() || 'Destinatário não informado';
-          add('d:' + norm(nome), nome, 'destinatário', t, s, unit, diasEntrega(e), ctrl);
+          add('d:' + norm(nome), nome, 'destinatário', t, s, unit, diasEntrega(e), ctrl, (e.cidade || '').trim());
         } else {
-          add('__voltaram', 'PortoEX — voltaram com a gente', 'entregamos só a carga', t, s, unit, diasEntrega(e), ctrl);
+          add('__voltaram', 'PortoEx - Matriz', 'pallets que voltaram com a PortoEX', t, s, unit, diasEntrega(e), ctrl, '');
         }
       });
     });
@@ -1372,7 +1387,7 @@ const operacoesCol = collection(db, 'operacoes');
     const tot = rows.reduce((t, o) => ({ pbr: t.pbr + o.pbr, desc: t.desc + o.desc, qtd: t.qtd + o.qtd, valor: t.valor + o.valor, ctrl: t.ctrl + o.ctrl }), { pbr: 0, desc: 0, qtd: 0, valor: 0, ctrl: 0 });
     $('holderBody').innerHTML = rows.map(o => `
       <tr>
-        <td><div class="stack"><span class="main">${esc(o.nome)}</span><span class="sub">${esc(o.sub)}</span></div></td>
+        <td><div class="stack"><span class="main">${esc(o.nome)}</span><span class="sub">${esc(o.sub + (o.cidades.size ? ' · ' + Array.from(o.cidades).join(', ') : ''))}</span></div></td>
         <td class="num">${o.pbr || '—'}</td>
         <td class="num">${o.desc || '—'}</td>
         <td class="num accent">${o.qtd}</td>
@@ -1558,6 +1573,7 @@ const operacoesCol = collection(db, 'operacoes');
     $('fcHorario').value = c ? (c.horario || '') : '';
     $('fcCliente').value = c ? (c.cliente || '') : '';
     $('fcEndereco').value = c ? (c.endereco || '') : '';
+    $('fcCidade').value = c ? (c.cidade || '') : '';
     $('fcMotorista').value = c ? (c.motorista || '') : '';
     $('fcPlaca').value = c ? (c.placa || '') : '';
     $('fcQtd').value = c ? (c.qtdPaletes ?? '') : '';
@@ -1596,6 +1612,7 @@ const operacoesCol = collection(db, 'operacoes');
       horario: $('fcHorario').value || '',
       cliente: $('fcCliente').value.trim(),
       endereco: $('fcEndereco').value.trim(),
+      cidade: $('fcCidade').value.trim(),
       motorista: $('fcMotorista').value.trim(),
       placa: $('fcPlaca').value.trim().toUpperCase(),
       qtdPaletes: qtd,
@@ -1659,6 +1676,7 @@ const operacoesCol = collection(db, 'operacoes');
       $('feData').value = e.data || '';
       $('feHorario').value = e.horario || '';
       $('feDestinatario').value = e.destinatario || '';
+      $('feCidade').value = e.cidade || '';
       $('feMotorista').value = e.motorista || '';
       $('fePlaca').value = e.placa || '';
       $('feQtd').value = e.qtd ?? '';
@@ -1669,7 +1687,7 @@ const operacoesCol = collection(db, 'operacoes');
       eResp = respDe(e);
       stagedEntregaDev = (e.devolucoes || []).map(d => ({ ...d }));
     } else {
-      ['feData', 'feHorario', 'feDestinatario', 'feMotorista', 'fePlaca', 'feQtd', 'feObs', 'feParceiro'].forEach(k => $(k).value = '');
+      ['feData', 'feHorario', 'feDestinatario', 'feCidade', 'feMotorista', 'fePlaca', 'feQtd', 'feObs', 'feParceiro'].forEach(k => $(k).value = '');
       eFicaram = null; eParceiro = false; eResp = 'portoex'; stagedEntregaDev = [];
       if ($('feColeta').value) applyColetaDefaults();
     }
@@ -1721,6 +1739,7 @@ const operacoesCol = collection(db, 'operacoes');
       data: $('feData').value,
       horario: $('feHorario').value || '',
       destinatario: $('feDestinatario').value.trim(),
+      cidade: $('feCidade').value.trim(),
       motorista: $('feMotorista').value.trim(),
       placa: $('fePlaca').value.trim().toUpperCase(),
       qtd,
@@ -1847,18 +1866,18 @@ const operacoesCol = collection(db, 'operacoes');
     const devsTxt = (r) => (r.devolucoes || []).map(d => `${fmtDate(d.data)} · ${d.qtd} · ${d.recebidoPor || '-'}`).join(' | ');
     let headers, rows;
     if (key === 'coletas') {
-      headers = ['Coleta - Data', 'Coleta - Horário', 'Cliente / Remetente', 'Endereço', 'Motorista', 'Placa', 'Pallets de quem', 'Tipo de pallet', 'Pallets coletados', 'Pallets entregues', 'A entregar', 'Devolvidos / retornados', 'Saldo pendente', 'Valor do pallet (R$)', 'Valor do saldo pendente (R$)', 'Dias pendentes', 'Situação', 'Nº de entregas', 'Observações'];
+      headers = ['Coleta - Data', 'Coleta - Horário', 'Cliente / Remetente', 'Endereço', 'Coleta - Cidade', 'Motorista', 'Placa', 'Pallets de quem', 'Tipo de pallet', 'Pallets coletados', 'Pallets entregues', 'A entregar', 'Devolvidos / retornados', 'Saldo pendente', 'Valor do pallet (R$)', 'Valor do saldo pendente (R$)', 'Dias pendentes', 'Situação', 'Nº de entregas', 'Observações'];
       rows = list.map(c => [
-        fmtDate(c.data), c.horario || '', c.cliente || '', c.endereco || '', c.motorista || '', c.placa || '', donoTxt(c), TIPO_LABEL[tipoDe(c)],
+        fmtDate(c.data), c.horario || '', c.cliente || '', c.endereco || '', c.cidade || '', c.motorista || '', c.placa || '', donoTxt(c), TIPO_LABEL[tipoDe(c)],
         qtdColetada(c), qtdEntregue(c), aEntregar(c), devolvidoColeta(c), saldoColeta(c), fmtNum(valorUnitDe(c)), fmtNum(valorSaldoColeta(c)), diasColeta(c) ?? '',
         statusLabel(statusColeta(c), donoDe(c)), entregasDe(c).length, (c.obs || '').replace(/\s*\n\s*/g, ' ')
       ]);
     } else {
-      headers = ['Entrega - Data', 'Entrega - Horário', 'Coleta - Data', 'Cliente (da coleta)', 'Pallets de quem', 'Tipo de pallet', 'Destinatário / Armazém / Redespacho', 'Motorista', 'Placa', 'Pallets entregues', 'O que aconteceu com os pallets', 'Entrega por parceiro', 'Parceiro', 'Retorno sob responsabilidade de', 'Devolvidos / retornados', 'Saldo pendente', 'Valor do pallet (R$)', 'Valor do saldo pendente (R$)', 'Dias pendentes', 'Situação', 'Devoluções (data · qtd · quem recebeu)', 'Observações'];
+      headers = ['Entrega - Data', 'Entrega - Horário', 'Coleta - Data', 'Cliente (da coleta)', 'Pallets de quem', 'Tipo de pallet', 'Destinatário / Armazém / Redespacho', 'Entrega - Cidade', 'Motorista', 'Placa', 'Pallets entregues', 'O que aconteceu com os pallets', 'Entrega por parceiro', 'Parceiro', 'Retorno sob responsabilidade de', 'Devolvidos / retornados', 'Saldo pendente', 'Valor do pallet (R$)', 'Valor do saldo pendente (R$)', 'Dias pendentes', 'Situação', 'Devoluções (data · qtd · quem recebeu)', 'Observações'];
       rows = list.map(e => {
         const c = coletaDe(e) || {};
         return [
-          fmtDate(e.data), e.horario || '', c.data ? fmtDate(c.data) : '', c.cliente || '', donoTxt(c), TIPO_LABEL[tipoDe(c)], e.destinatario || '', e.motorista || '', e.placa || '',
+          fmtDate(e.data), e.horario || '', c.data ? fmtDate(c.data) : '', c.cliente || '', donoTxt(c), TIPO_LABEL[tipoDe(c)], e.destinatario || '', e.cidade || '', e.motorista || '', e.placa || '',
           Number(e.qtd) || 0, e.paletesFicaram === 'destino' ? 'Ficaram no destino' : (e.paletesFicaram === 'portoex' ? 'Voltaram com a PortoEX' : ''),
           e.porParceiro ? 'Sim' : 'Não', e.parceiro || '', respDe(e) === 'controladoria' ? 'Controladoria' : 'PortoEX',
           devQtd(e), saldoEntrega(e), fmtNum(valorUnitDe(c)), fmtNum(valorSaldoEntrega(e)), diasEntrega(e) ?? '', statusLabel(statusEntrega(e), donoDe(c)), devsTxt(e), (e.obs || '').replace(/\s*\n\s*/g, ' ')
